@@ -5,246 +5,318 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Saudifitx · تجربة ١٤ يوم</title>
 <style>
-  /* Brand: Saudifitx Design System — Baloo Bhaijaan 2, teal #0B2D33, green #2AF45F */
+  /* Brand: Saudifitx Design System — Baloo Bhaijaan 2 (display: 800, UI: 500), teal #0B2D33, one accent #2AF45F */
   @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 500; font-display: block; src: url(fonts/BalooBhaijaan2-Medium.ttf) format("truetype"); }
   @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 700; font-display: block; src: url(fonts/BalooBhaijaan2-Bold.ttf) format("truetype"); }
   @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 800; font-display: block; src: url(fonts/BalooBhaijaan2-ExtraBold.ttf) format("truetype"); }
 
   :root {
-    --brand-teal: #0B2D33;
-    --brand-teal-soft: #0D3235;
-    --brand-teal-deep: #082226;
-    --brand-green: #2AF45F;
-    --brand-green-bright: #57C96F;
-    --bg-elevated: #11383D;
-    --fg: #FFFFFF;
-    --fg-muted: rgba(255,255,255,0.72);
-    --fg-subtle: rgba(255,255,255,0.50);
-    --border: rgba(255,255,255,0.10);
-    --border-strong: rgba(255,255,255,0.22);
-    --shadow-md: 0 6px 16px rgba(0,0,0,0.28);
-    --shadow-inset-hi: inset 0 1px 0 rgba(255,255,255,0.10);
-    --shadow-green-glow: 0 8px 28px rgba(42,244,95,0.35);
+    --teal: #0B2D33; --teal-soft: #0D3235; --elev: #11383D;
+    --green: #2AF45F; --green-bright: #57C96F;
+    --fg: #fff; --muted: rgba(255,255,255,.72); --subtle: rgba(255,255,255,.5);
+    --border: rgba(255,255,255,.10);
     --font: "Baloo Bhaijaan 2", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: #000; overflow: hidden; }
   body { display: grid; place-items: center; font-family: var(--font); }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--teal); color: var(--fg); transform-origin: center; }
+  .scene { position: absolute; inset: 0; display: none; }
+  .r { position: absolute; right: 80px; left: 80px; text-align: right; white-space: nowrap; }
+  .d { font-weight: 800; line-height: 1.1; }             /* display */
+  .u { font-weight: 500; color: var(--muted); }          /* UI */
+  .g { color: var(--green); }
+  .mask { overflow: hidden; }
+  .mask > span { display: inline-block; }
 
-  /* 9:16 story frame — 120px top/bottom safe area, 80px sides */
-  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden;
-    background: var(--brand-teal); color: var(--fg); transform-origin: center; }
-  #grad { position: absolute; inset: 0;
-    background: radial-gradient(120% 90% at 0% 100%, var(--brand-green-bright) 0%, var(--brand-teal-soft) 45%, var(--brand-teal) 75%); }
-  .abs { position: absolute; left: 80px; right: 80px; text-align: center; will-change: transform, opacity; }
+  /* A — chaos */
+  .w { position: absolute; white-space: nowrap; font-weight: 700; transform-origin: center; }
+  .w.chip { background: var(--fg); color: var(--teal); border-radius: 999px; padding: 0 .45em; }
+  #line { position: absolute; height: 12px; top: 954px; background: var(--green); border-radius: 12px; }
+  #lost { top: 640px; font-size: 280px; }
 
-  /* persistent frame, as in the post template: logo top-left, social row bottom-left */
-  #logo { position: absolute; width: 1057px; height: 299px; left: 0; top: 0; transform-origin: 0 0; }
-  #logo img { position: absolute; inset: 0; width: 100%; height: 100%; }
-  #social { position: absolute; left: 80px; bottom: 120px; height: 96px; }
+  /* B — 14 */
+  #trial { top: 250px; font-size: 130px; }
+  #num { position: absolute; left: -40px; top: 330px; font-size: 900px; font-weight: 800; line-height: 1; color: var(--green); direction: rtl; }
+  #yom { top: 1330px; font-size: 200px; }
 
-  #kicker { top: 400px; font-size: 104px; font-weight: 700; color: var(--fg-muted); }
-  #bigNum { top: 600px; font-size: 560px; font-weight: 800; line-height: 1; color: var(--brand-green); letter-spacing: -0.02em; }
-  #dayWord { top: 1230px; font-size: 150px; font-weight: 800; }
+  /* C — focus */
+  #rest { top: 660px; font-size: 130px; }
+  #focus { top: 820px; font-size: 270px; }
+  #fline { position: absolute; right: 80px; top: 1170px; height: 12px; background: var(--green); border-radius: 12px; }
 
-  #focusText { top: 790px; font-size: 130px; font-weight: 800; line-height: 1.2; }
-  #focusText b { display: block; color: var(--brand-green); font-size: 200px; font-weight: 800; }
-  .ring { position: absolute; left: 50%; top: 1000px; border-radius: 50%; border: 2px solid var(--border-strong); }
-  #ring3 { border-color: var(--brand-green); }
-
-  #daysTitle { top: 420px; font-size: 96px; font-weight: 800; line-height: 1.2; }
-  #daysTitle span { display: block; font-size: 60px; font-weight: 500; color: var(--fg-muted); }
-  #days { position: absolute; top: 700px; left: 80px; right: 80px; display: grid;
-    grid-template-columns: repeat(4, 1fr); gap: 32px; }
-  .day { height: 180px; border-radius: 24px; background: var(--bg-elevated); border: 1px solid var(--border);
-    box-shadow: var(--shadow-md), var(--shadow-inset-hi);
-    display: grid; place-items: center; font-size: 84px; font-weight: 800; color: var(--fg-subtle);
-    position: relative; overflow: hidden; }
-  .day .fill { position: absolute; inset: 0; background: var(--brand-green); transform-origin: bottom; transform: scaleY(0); }
+  /* D — tracker */
+  #dTitle { top: 200px; font-size: 120px; }
+  #dSub { top: 350px; font-size: 66px; }
+  #days { position: absolute; top: 500px; left: 80px; right: 80px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  .day { height: 180px; border-radius: 24px; background: var(--elev); border: 1px solid var(--border);
+    display: grid; place-items: center; font-size: 88px; font-weight: 800; color: var(--subtle); position: relative; overflow: hidden; }
+  .day .f { position: absolute; inset: 0; background: var(--green); transform-origin: bottom; }
   .day .n { position: relative; }
   .day:nth-child(13) { grid-column: 2; }
-  #bar { position: absolute; top: 1560px; left: 80px; right: 80px; height: 20px; border-radius: 999px; background: var(--border); overflow: hidden; }
-  #barFill { position: absolute; right: 0; top: 0; bottom: 0; background: var(--brand-green); border-radius: 999px; }
-  #pct { top: 1600px; font-size: 60px; font-weight: 800; color: var(--brand-green); }
+  #dayNum { top: 1400px; font-size: 300px; }
+  #dayNum .u { font-size: 120px; color: var(--fg); font-weight: 800; }
 
-  #pillTitle { top: 360px; font-size: 100px; font-weight: 800; }
-  .card { position: absolute; left: 80px; right: 80px; height: 230px; border-radius: 24px;
-    background: var(--bg-elevated); border: 1px solid var(--border); box-shadow: var(--shadow-md), var(--shadow-inset-hi);
-    display: flex; align-items: center; gap: 48px; padding: 0 56px; }
-  .card .ic { width: 128px; height: 128px; border-radius: 999px; background: var(--brand-green); display: grid; place-items: center; flex: none; }
-  .card .ic svg { width: 64px; height: 64px; stroke: var(--brand-teal); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .card h3 { font-size: 80px; font-weight: 800; line-height: 1.15; }
-  .card p { font-size: 46px; font-weight: 500; color: var(--fg-muted); line-height: 1.3; }
+  /* E — habits */
+  .card { position: absolute; inset: 0; background: var(--teal); }
+  .card .step { top: 200px; font-size: 72px; }
+  .card .ic { position: absolute; right: 80px; top: 420px; width: 360px; height: 360px; border-radius: 50%; background: var(--green); display: grid; place-items: center; }
+  .card .ic svg { width: 190px; height: 190px; stroke: var(--teal); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .card h3 { top: 880px; font-size: 150px; }
+  .card p { top: 1080px; font-size: 80px; }
+  .card.alt .ic { right: auto; left: 80px; }
+  .card.alt .big { left: auto; right: -60px; }
+  .card.inv { background: var(--green); color: var(--teal); }
+  .card.inv .u { color: rgba(11,45,51,.75); }
+  .card.inv .ic { background: var(--teal); }
+  .card.inv .ic svg { stroke: var(--green); }
+  .card.inv .big { color: rgba(11,45,51,.12); }
+  .card .big { position: absolute; left: -60px; bottom: -120px; font-size: 900px; font-weight: 800; line-height: 1; color: var(--elev); }
 
-  #ctaA { top: 700px; font-size: 128px; font-weight: 800; line-height: 1.2; }
-  #ctaA b { color: var(--brand-green); font-weight: 800; }
-  #ctaSub { top: 1060px; font-size: 56px; font-weight: 500; color: var(--fg-muted); }
-  #ctaBtn { position: absolute; left: 50%; top: 1240px; padding: 34px 110px; border-radius: 999px;
-    background: var(--brand-green); color: var(--brand-teal); font-size: 84px; font-weight: 800; white-space: nowrap;
-    box-shadow: var(--shadow-green-glow); line-height: 1.3; }
+  /* F — statement */
+  #s1 { top: 560px; font-size: 170px; } #s2 { top: 760px; font-size: 170px; } #s3 { top: 960px; font-size: 170px; }
+  #sline { position: absolute; right: 80px; top: 1230px; height: 12px; background: var(--green); border-radius: 12px; }
+
+  /* G — end card (signature gradient, brand template layout) */
+  #grad { position: absolute; inset: 0; background: radial-gradient(120% 90% at 0% 100%, var(--green-bright) 0%, var(--teal-soft) 45%, var(--teal) 75%); }
+  #logo { position: absolute; left: 80px; top: 180px; width: 740px; height: 209px; }
+  #logo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #c1 { top: 760px; font-size: 130px; } #c2 { top: 900px; font-size: 220px; }
+  #btn { position: absolute; right: 80px; top: 1250px; padding: 30px 100px; border-radius: 999px; background: var(--green); color: var(--teal); font-size: 90px; font-weight: 800; line-height: 1.3; white-space: nowrap; }
+  #social { position: absolute; left: 80px; bottom: 120px; height: 96px; }
 
   #controls { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 5; direction: ltr; }
-  #controls button { font: 700 15px var(--font); padding: 8px 18px; border-radius: 999px; border: 0; background: var(--brand-green); color: var(--brand-teal); cursor: pointer; }
+  #controls button { font: 700 15px var(--font); padding: 8px 18px; border-radius: 999px; border: 0; background: var(--green); color: var(--teal); cursor: pointer; }
   body.capture #controls { display: none; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="grad"></div>
+  <section class="scene" id="A">
+    <div id="chaos" style="position:absolute;inset:0"></div>
+    <div id="line"></div>
+    <div class="r d mask" id="lost"><span>مشتّت؟</span></div>
+  </section>
 
-  <!-- Scene 2: تجربة ١٤ يوم -->
-  <div class="abs" id="kicker">تجربة</div>
-  <div class="abs" id="bigNum">١</div>
-  <div class="abs" id="dayWord">يوم</div>
+  <section class="scene" id="Bs">
+    <div class="r d mask" id="trial"><span>تجربة</span></div>
+    <div id="num">١</div>
+    <div class="r d mask" id="yom"><span>يوم</span></div>
+  </section>
 
-  <!-- Scene 3: لاستعادة التركيز -->
-  <div class="ring" id="ring1"></div>
-  <div class="ring" id="ring2"></div>
-  <div class="ring" id="ring3"></div>
-  <div class="abs" id="focusText">لاستعادة<b>التركيز</b></div>
+  <section class="scene" id="C">
+    <div class="r d mask" id="rest"><span>لاستعادة</span></div>
+    <div class="r d g" id="focus">التركيز</div>
+    <div id="fline"></div>
+  </section>
 
-  <!-- Scene 4: 14-day tracker -->
-  <div class="abs" id="daysTitle">يوم بيوم<span>عادة صغيرة كل يوم… وتركيزك يرجع</span></div>
-  <div id="days"></div>
-  <div id="bar"><div id="barFill"></div></div>
-  <div class="abs" id="pct">٠٪</div>
+  <section class="scene" id="D">
+    <div class="r d mask" id="dTitle"><span>يوم بيوم</span></div>
+    <div class="r u mask" id="dSub"><span>عادة صغيرة كل يوم</span></div>
+    <div id="days"></div>
+    <div class="r d g" id="dayNum">١</div>
+  </section>
 
-  <!-- Scene 5: daily habits (Lucide icons) -->
-  <div class="abs" id="pillTitle">٤ عادات يومية</div>
-  <div class="card" id="c0"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div><div><h3>نوم أعمق</h3><p>روتين ثابت قبل النوم</p></div></div>
-  <div class="card" id="c1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><h3>حركة يومية</h3><p>٣٠ دقيقة تنشّط عقلك</p></div></div>
-  <div class="card" id="c2"><div class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M3 3l18 18"/></svg></div><div><h3>ديتوكس رقمي</h3><p>وقت أقل على الشاشة</p></div></div>
-  <div class="card" id="c3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg></div><div><h3>تنفّس وصفاء</h3><p>٥ دقائق كل صباح</p></div></div>
+  <section class="scene" id="E"></section>
 
-  <!-- Scene 6: CTA -->
-  <div class="abs" id="ctaA">جاهز تستعيد<br><b>تركيزك؟</b></div>
-  <div class="abs" id="ctaSub">١٤ يوم. عادة وحدة كل يوم.</div>
-  <div id="ctaBtn">ابدأ التحدي</div>
+  <section class="scene" id="F">
+    <div class="r d mask" id="s1"><span>عادة وحدة.</span></div>
+    <div class="r d mask" id="s2"><span>كل يوم.</span></div>
+    <div class="r d g mask" id="s3"><span>١٤ يوم.</span></div>
+    <div id="sline"></div>
+  </section>
 
-  <!-- persistent brand frame -->
-  <div id="logo"><img id="logoWhite" src="assets/logo-white.png" alt=""><img id="logoGreen" src="assets/logo-green.png" alt=""></div>
-  <img id="social" src="assets/social-row.png" alt="@saudifitx">
+  <section class="scene" id="G">
+    <div id="grad"></div>
+    <div id="logo"><img id="logoW" src="assets/logo-white.png" alt=""><img id="logoG" src="assets/logo-green.png" alt=""></div>
+    <div class="r d mask" id="c1"><span>جاهز تستعيد</span></div>
+    <div class="r d g mask" id="c2"><span>تركيزك؟</span></div>
+    <div id="btn">ابدأ التحدي</div>
+    <img id="social" src="assets/social-row.png" alt="@saudifitx">
+  </section>
 </div>
 
-<div id="controls"><button id="replay">↻ Replay</button><button id="pause">❚❚ Pause</button></div>
+<div id="controls"><button id="play">▶ Play</button><button id="replay">↻ Replay</button></div>
+<audio id="score" src="score.wav" preload="auto"></audio>
 
 <script>
-const DURATION = 20; // seconds
+// ───────────────────────── Render contract: seek(t) paints the frame at t. Pure; no state between frames.
 const $ = id => document.getElementById(id);
 const AR = n => String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const p = (t, a, b) => clamp((t - a) / (b - a));
 const lerp = (a, b, k) => a + (b - a) * k;
-// brand easing: smooth ease-out for entrances (≈ cubic-bezier(0.22,1,0.36,1)), no overshoot
-const ease = k => 1 - Math.pow(1 - k, 4);
-const inOut = k => k < .5 ? 8 * k ** 4 : 1 - Math.pow(-2 * k + 2, 4) / 2;
-// visibility window: fade in over [a, a+fi], out over [b-fo, b]
-const win = (t, a, b, fi = .6, fo = .4) => Math.min(ease(p(t, a, a + fi)), 1 - p(t, b - fo, b));
-// brand entrance: fade + small upward rise
-const rise = (el, t, a, o = 1, dist = 24, dur = .7) => set(el, { y: lerp(dist, 0, ease(p(t, a, a + dur))), o: Math.min(o, ease(p(t, a, a + dur))) });
+const out = k => 1 - Math.pow(1 - k, 5);                         // brand entrance ease, no overshoot
+const io = k => k < .5 ? 16 * k ** 5 : 1 - Math.pow(-2 * k + 2, 5) / 2;
+const decay = (t, t0, len) => t < t0 ? 0 : Math.exp(-(t - t0) / len);   // beat-hit envelope
 
-function set(el, { x = 0, y = 0, s = 1, o = 1, blur = 0, base = "" }) {
-  el.style.transform = `${base} translate(${x}px, ${y}px) scale(${s})`;
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const hash = (i, n) => mulberry32(i * 7919 + n * 104729 + 1)();    // seeded per-(item, step) noise
+
+let BEATS = null;  // measured grid from beats.json, set once at load
+const B = i => BEATS[Math.min(i, BEATS.length - 1)] + Math.max(0, i - BEATS.length + 1) * .5;
+const BEAT = () => B(1) - B(0);
+const DURATION = 20;
+
+function css(el, { x = 0, y = 0, s = 1, sx = s, sy = s, o = 1, blur = 0, base = "" }) {
+  el.style.transform = `${base} translate(${x}px,${y}px) scale(${sx},${sy})`;
   el.style.opacity = o;
-  el.style.filter = blur ? `blur(${blur}px)` : "none";
+  el.style.filter = blur > .05 ? `blur(${blur}px)` : "none";
 }
+// mask reveal: inner span rises from below its own line box
+function reveal(el, t, t0, dur = .28) {
+  const k = out(p(t, t0, t0 + dur));
+  el.style.visibility = t >= t0 ? "visible" : "hidden";
+  el.firstElementChild.style.transform = `translateY(${lerp(105, 0, k)}%)`;
+}
+const scene = (id, t, a, b) => { const on = t >= a && t < b; $(id).style.display = on ? "block" : "none"; return on; };
 
-$("days").innerHTML = Array.from({ length: 14 }, (_, i) => `<div class="day"><div class="fill"></div><span class="n">${AR(i + 1)}</span></div>`).join("");
-const cells = [...document.querySelectorAll(".day")];
+// ── static layout built once (deterministic)
+const WORDS = ["إشعار", "رسالة جديدة", "٩٩+", "تمرير", "فيديو قصير", "تنبيه", "بث مباشر", "@منشن", "ريلز", "لايك", "٣ رسائل", "تحديث", "ستوري", "إعلان", "١٢+", "تعليق", "قروب", "مكالمة فائتة"];
+const rng = mulberry32(14);
+const CHAOS = WORDS.map((w, i) => ({
+  w, appear: (r => i < 6 ? i * .03 : .18 + r * .6)(rng()), x: 40 + rng() * 760, y: 160 + rng() * 1540,
+  size: 70 + rng() * 80, rot: (rng() - .5) * 16, chip: rng() < .35,
+}));
+$("chaos").innerHTML = CHAOS.map(c => `<div class="w${c.chip ? " chip" : ""}" style="left:${c.x}px;top:${c.y}px;font-size:${c.size | 0}px">${c.w}</div>`).join("");
+const chaosEls = [...$("chaos").children];
 
-// logo positions: centered hero → top-left header (template placement)
-const LOGO_W = 1057, LOGO_H = 299;
-const HERO = { s: .8, x: (1080 - LOGO_W * .8) / 2, y: (1920 - LOGO_H * .8) / 2 };
-const HEAD = { s: .36, x: 80, y: 120 };
-const CTA = { s: .66, x: (1080 - LOGO_W * .66) / 2, y: 300 };
+$("days").innerHTML = Array.from({ length: 14 }, (_, i) => `<div class="day"><div class="f"></div><span class="n">${AR(i + 1)}</span></div>`).join("");
+const dayEls = [...$("days").children];
 
-function render(t) {
-  // signature gradient breathes slightly
-  $("grad").style.opacity = .55 + .25 * Math.sin(t * .6);
+const HABITS = [
+  ["نوم أعمق", "روتين ثابت قبل النوم", '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'],
+  ["حركة يومية", "٣٠ دقيقة تنشّط عقلك", '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'],
+  ["ديتوكس رقمي", "وقت أقل على الشاشة", '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M3 3l18 18"/>'],
+  ["تنفّس وصفاء", "٥ دقائق كل صباح", '<path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>'],
+];
+$("E").innerHTML = HABITS.map(([h, s, ic], i) => `<div class="card${i % 2 ? " alt" : ""}${i === 2 ? " inv" : ""}" id="h${i}">
+  <div class="big">${AR(i + 1)}</div>
+  <div class="r u step">عادة ${AR(i + 1)} من ٤</div>
+  <div class="ic"><svg viewBox="0 0 24 24">${ic}</svg></div>
+  <h3 class="r d">${h}</h3><p class="r u">${s}</p></div>`).join("");
+const cards = HABITS.map((_, i) => $("h" + i));
 
-  // ── Logo: hero reveal → arrow flick → docks top-left; returns to hero for the CTA
-  {
-    const inW = ease(p(t, .2, 1.0));      // white type rises in
-    const inG = ease(p(t, .5, 1.3));      // green S + arrow
-    const flick = Math.sin(p(t, 1.3, 1.75) * Math.PI);   // brief upward flick, settles back
-    const dock = inOut(p(t, 2.3, 3.0));
-    const back = inOut(p(t, 17.0, 17.6));
-    const from = back > 0 ? HEAD : HERO, to = back > 0 ? CTA : HEAD, k = back > 0 ? back : dock;
-    const s = lerp(from.s, to.s, k), x = lerp(from.x, to.x, k), y = lerp(from.y, to.y, k);
-    $("logo").style.transform = `translate(${x}px, ${y}px) scale(${s})`;
-    set($("logoWhite"), { y: lerp(30, 0, inW), o: inW });
-    set($("logoGreen"), { x: flick * 10, y: lerp(30, 0, inG) - flick * 26, o: inG });
-    set($("social"), { y: lerp(24, 0, ease(p(t, 2.6, 3.3))), o: ease(p(t, 2.6, 3.3)) });
+function seek(t) {
+  // A — chaos → snap to the focus line → "مشتّت؟"   [0, B4)
+  if (scene("A", t, 0, B(4))) {
+    const snap = B(2), k = io(p(t, snap, snap + .18));
+    CHAOS.forEach((c, i) => {
+      const el = chaosEls[i], shown = t >= c.appear && k < 1;
+      el.style.visibility = shown ? "visible" : "hidden";
+      if (!shown) return;
+      const step = Math.floor(t * 15);                              // 15 Hz jitter, seeded
+      const jx = (hash(i, step) - .5) * 18, jy = (hash(i + 99, step) - .5) * 18;
+      const pop = 1 + .25 * decay(t, c.appear, .05);
+      const w = el.offsetWidth, h = el.offsetHeight;
+      const cx = 540 - (c.x + w / 2), cy = 960 - (c.y + h / 2);
+      css(el, { x: lerp(jx, cx, k), y: lerp(jy, cy, k), sx: pop * (1 - .6 * k), sy: pop * (1 - k), base: `rotate(${c.rot * (1 - k)}deg)` });
+    });
+    const amp = 4 + 22 * p(t, 0, snap) ** 2, st = Math.floor(t * 24);  // seeded camera shake, builds to the snap
+    css($("chaos"), { x: t < snap ? (hash(501, st) - .5) * amp : 0, y: t < snap ? (hash(502, st) - .5) * amp : 0 });
+    const lw = io(p(t, snap + .08, snap + .26)) * 920;
+    $("line").style.width = lw + "px";
+    $("line").style.left = (540 - lw / 2) + "px";
+    css($("line"), { y: out(p(t, B(3) - .1, B(3) + .2)) * 230, sy: 1 + 1.5 * decay(t, snap + .26, .08) });
+    reveal($("lost"), t, B(2) + .2, .3);
+    css($("lost"), { s: 1 + .05 * decay(t, B(3), .15) });
+    $("lost").style.transformOrigin = "right center";
   }
 
-  // ── Scene 2: تجربة ١٤ يوم (3.0 – 6.6)
-  {
-    const o = win(t, 3.0, 6.6);
-    rise($("kicker"), t, 3.0, o);
-    const kc = inOut(p(t, 3.2, 4.6));
-    $("bigNum").textContent = AR(Math.max(1, Math.round(kc * 14)));
-    set($("bigNum"), { y: lerp(40, 0, ease(p(t, 3.2, 3.9))), s: lerp(.92, 1, ease(p(t, 3.2, 4.6))), o: Math.min(o, ease(p(t, 3.2, 3.8))) });
-    rise($("dayWord"), t, 4.5, o);
+  // B — تجربة / ١٤ counts on 16ths / يوم   [B4, B10)
+  if (scene("Bs", t, B(4), B(10))) {
+    reveal($("trial"), t, B(4));
+    const T0 = B(5), step = BEAT() / 4;
+    const k = t < T0 ? 0 : Math.min(13, Math.floor((t - T0) / step) + 1);
+    $("num").textContent = AR(1 + k);
+    const lastTick = k === 0 ? B(4) : T0 + (k - 1) * step;
+    const land = decay(t, B(8), .18);
+    const roll = k === 0 ? 0 : 1 - out(p(t, lastTick, lastTick + .06));   // new digit rolls up into place
+    css($("num"), { x: lerp(-200, 0, out(p(t, B(4), B(4) + .4))), y: roll * 90, s: 1 + .08 * land, o: out(p(t, B(4), B(4) + .15)) * (1 - .3 * roll) });
+    reveal($("yom"), t, B(8) - .06);
   }
 
-  // ── Scene 3: لاستعادة التركيز (6.6 – 10.0)
-  {
-    const o = win(t, 6.6, 10.0, .4);
-    const f = inOut(p(t, 6.7, 8.0));
-    set($("focusText"), { s: lerp(1.12, 1, f), blur: (1 - f) * 24, o });
-    ["ring1", "ring2", "ring3"].forEach((id, i) => {
-      const k = inOut(p(t, 6.6 + i * .15, 8.1 + i * .1));
-      const el = $(id), d = lerp(2000 - i * 250, 900 - i * 160, k);
-      el.style.width = el.style.height = d + "px";
-      set(el, { base: "translate(-50%, -50%)", o: o * (i === 2 ? .7 : .5) });
+  // C — لاستعادة / التركيز rack focus / line   [B10, B12)
+  if (scene("C", t, B(10), B(12))) {
+    reveal($("rest"), t, B(10));
+    const f = io(p(t, B(10), B(11)));
+    css($("focus"), { blur: (1 - f) * 40, s: lerp(1.18, 1, f) + .04 * decay(t, B(11), .15), o: lerp(.35, 1, f) });
+    $("fline").style.width = io(p(t, B(11), B(11) + .3)) * 920 + "px";
+  }
+
+  // D — tracker: one day fills per 8th note   [B12, B20)
+  if (scene("D", t, B(12), B(20))) {
+    reveal($("dTitle"), t, B(12));
+    reveal($("dSub"), t, B(12) + .12);
+    let filled = 0;
+    dayEls.forEach((el, i) => {
+      const ti = B(12) + i * BEAT() / 2, k = out(p(t, ti, ti + .12));
+      if (t >= ti) filled = i + 1;
+      el.firstElementChild.style.transform = `scaleY(${k})`;
+      el.style.color = k > .5 ? "var(--teal)" : "";
+      css(el, { s: 1 + .06 * decay(t, ti, .08) + .05 * decay(t, B(19), .15) });
+    });
+    $("dayNum").innerHTML = `<span class="u">${t >= B(19) ? "تم" : "اليوم"}</span> ${AR(Math.max(1, filled))}`;
+    css($("dayNum"), { s: 1 + .05 * decay(t, B(12) + (Math.max(1, filled) - 1) * BEAT() / 2, .08) + .1 * decay(t, B(19), .2) });
+    $("dayNum").style.transformOrigin = "right center";
+  }
+
+  // E — habits: push-cut into each card on the beat   [B20, B28)
+  if (scene("E", t, B(20), B(28))) {
+    cards.forEach((el, i) => {
+      const tin = B(20 + 2 * i), tout = B(22 + 2 * i);
+      const kin = i === 0 ? 1 : out(p(t, tin - .2, tin)), kout = i === 3 ? 0 : out(p(t, tout - .2, tout));
+      const on = t >= tin - .2 && (i === 3 || t < tout);
+      el.style.visibility = on ? "visible" : "hidden";
+      if (!on) return;
+      css(el, { x: lerp(-1080, 0, kin) + kout * 1080 });
+      const ic = el.querySelector(".ic");
+      css(ic, { s: lerp(.6, 1, out(p(t, tin, tin + .3))) + .05 * decay(t, tin, .12) });
+      el.querySelectorAll("path,rect").forEach(pth => {
+        const len = pth.getTotalLength();
+        pth.style.strokeDasharray = len;
+        pth.style.strokeDashoffset = len * (1 - io(p(t, tin + .05, tin + .45)));
+      });
+      css(el.querySelector(".big"), { y: lerp(200, 0, out(p(t, tin - .2, tin + .6))) });
     });
   }
 
-  // ── Scene 4: 14-day tracker (10.0 – 14.2)
-  {
-    const o = win(t, 10.0, 14.2);
-    rise($("daysTitle"), t, 10.0, o);
-    cells.forEach((c, i) => {
-      const a = ease(p(t, 10.1 + i * .035, 10.7 + i * .035));
-      set(c, { y: lerp(24, 0, a), o: Math.min(a, o) });
-      const fk = ease(p(t, 10.8 + i * .17, 11.1 + i * .17));
-      c.firstChild.style.transform = `scaleY(${fk})`;
-      c.style.color = fk > .5 ? "var(--brand-teal)" : "";
-    });
-    const prog = p(t, 10.8, 13.4);
-    set($("bar"), { o });
-    $("barFill").style.width = prog * 100 + "%";
-    $("pct").textContent = AR(Math.round(prog * 100)) + "٪";
-    set($("pct"), { o });
+  // F — statement, one line per beat, line draws into the logo   [B28, B32)
+  if (scene("F", t, B(28), B(32))) {
+    reveal($("s1"), t, B(28) - .06);
+    reveal($("s2"), t, B(29) - .06);
+    const sk = out(p(t, B(30) - .12, B(30)));
+    $("s3").style.visibility = t >= B(30) - .12 ? "visible" : "hidden";
+    $("s3").firstElementChild.style.transform = "none";
+    css($("s3"), { s: lerp(1.9, 1, sk) + .05 * decay(t, B(30), .15), o: sk });
+    $("s3").style.transformOrigin = "right center";
+    $("sline").style.width = io(p(t, B(30), B(32))) * 920 + "px";
   }
 
-  // ── Scene 5: habits (14.2 – 17.2)
-  {
-    const o = win(t, 14.2, 17.2, .5, .35);
-    rise($("pillTitle"), t, 14.2, o);
-    for (let i = 0; i < 4; i++) {
-      const el = $("c" + i);
-      el.style.top = 580 + i * 265 + "px";
-      const k = ease(p(t, 14.4 + i * .22, 15.1 + i * .22));
-      set(el, { y: lerp(40, 0, k), o: Math.min(o, k) });
-    }
-  }
-
-  // ── Scene 6: CTA (17.4 – 20)
-  {
-    rise($("ctaA"), t, 17.5);
-    rise($("ctaSub"), t, 17.9);
-    const b = ease(p(t, 18.3, 19.0));
-    set($("ctaBtn"), { base: "translateX(-50%)", y: lerp(24, 0, b), o: b });
+  // G — end card   [B32, end]
+  if (scene("G", t, B(32), 1e9)) {
+    css($("grad"), { o: .6 + .4 * out(p(t, B(32), B(34))) });
+    const wk = out(p(t, B(32), B(32) + .35));
+    $("logoW").style.clipPath = `inset(0 ${(1 - wk) * 100}% 0 0)`;
+    const gk = out(p(t, B(33) - .1, B(33) + .15));
+    const flick = Math.sin(p(t, B(33), B(33) + .35) * Math.PI);
+    css($("logoG"), { x: flick * 8, y: lerp(40, 0, gk) - flick * 22, o: gk });
+    reveal($("c1"), t, B(34) - .06);
+    reveal($("c2"), t, B(35) - .06);
+    const bk = out(p(t, B(36) - .1, B(36) + .2));
+    $("btn").style.clipPath = `inset(0 0 0 ${(1 - bk) * 100}%)`;
+    css($("btn"), { s: 1 + .04 * decay(t, B(36), .12) + .04 * decay(t, B(38), .15) });
+    $("btn").style.transformOrigin = "right center";
+    const sk = out(p(t, B(37), B(37) + .35));
+    css($("social"), { x: lerp(-60, 0, sk), o: sk });
   }
 }
 
-// ── playback / capture
+// ───────────────────────── playback shell (outside the render contract)
 window.DURATION = DURATION;
-window.render = render;
+window.seek = seek;
 const capture = new URLSearchParams(location.search).has("capture");
 if (capture) document.body.classList.add("capture");
-
 function fit() {
   if (capture) return;
   const s = Math.min(innerWidth / 1080, innerHeight / 1920);
@@ -253,21 +325,20 @@ function fit() {
 }
 addEventListener("resize", fit); fit();
 
-const LOOP = DURATION + 1.5;
-let start = null, paused = false, pauseAt = 0;
-function loop(now) {
-  if (start === null) start = now;
-  render(Math.min(paused ? pauseAt : ((now - start) / 1000) % LOOP, DURATION));
-  requestAnimationFrame(loop);
-}
-$("replay").onclick = () => { start = null; paused = false; $("pause").textContent = "❚❚ Pause"; };
-$("pause").onclick = () => {
-  if (!paused) { pauseAt = ((performance.now() - start) / 1000) % LOOP; paused = true; $("pause").textContent = "▶ Play"; }
-  else { start = performance.now() - pauseAt * 1000; paused = false; $("pause").textContent = "❚❚ Pause"; }
-};
-render(0);
-Promise.all([document.fonts.ready, ...[...document.images].map(i => i.decode().catch(() => {}))])
-  .then(() => { if (!capture) requestAnimationFrame(loop); window.ready = true; });
+const audio = $("score");
+function tick() { seek(audio.currentTime); if (!audio.paused) requestAnimationFrame(tick); }
+$("play").onclick = () => { if (audio.paused) { audio.play(); $("play").textContent = "❚❚ Pause"; requestAnimationFrame(tick); } else { audio.pause(); $("play").textContent = "▶ Play"; } };
+$("replay").onclick = () => { audio.currentTime = 0; if (audio.paused) $("play").click(); };
+audio.onended = () => { $("play").textContent = "▶ Play"; };
+
+fetch("beats.json").then(r => r.json()).then(j => j.beats)
+  .catch(() => Array.from({ length: 40 }, (_, i) => i * .5))       // file:// fallback: nominal 120 BPM grid
+  .then(beats => {
+    BEATS = beats; window.BEATS = beats;
+    return Promise.all([document.fonts.load('800 100px "Baloo Bhaijaan 2"'), document.fonts.load('500 100px "Baloo Bhaijaan 2"'),
+      document.fonts.load('700 100px "Baloo Bhaijaan 2"'), ...[...document.images].map(i => i.decode().catch(() => {}))]);
+  })
+  .then(() => { seek(0); window.ready = true; });
 </script>
 </body>
 </html>
