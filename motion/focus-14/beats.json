@@ -1,7 +1,7 @@
 {
  "bpm": 100.0,
  "offset": 0.02,
- "count": 88,
+ "count": 90,
  "beats": [
   0.02,
   0.62,
@@ -90,7 +90,9 @@
   50.42,
   51.02,
   51.62,
-  52.22
+  52.22,
+  52.82,
+  53.42
  ],
  "lufs": -13.8,
  "source": "measured from score.wav (spectral-flux onset autocorrelation)"

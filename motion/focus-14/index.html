@@ -5,212 +5,226 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Saudifitx · تحدي ١٤ يوم</title>
 <style>
-  /* Brand: Saudifitx Design System — Baloo Bhaijaan 2 (display: 800, UI: 500), teal #0B2D33, one accent #2AF45F */
+  /* Brand: Saudifitx Design System — display: Baloo Bhaijaan 2 · UI/HUD: JetBrains Mono · teal #0B2D33 · accent #2AF45F */
   @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 500; font-display: block; src: url(fonts/BalooBhaijaan2-Medium.ttf) format("truetype"); }
   @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 700; font-display: block; src: url(fonts/BalooBhaijaan2-Bold.ttf) format("truetype"); }
   @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 800; font-display: block; src: url(fonts/BalooBhaijaan2-ExtraBold.ttf) format("truetype"); }
+  @font-face { font-family: "JetBrains Mono"; font-weight: 500 700; font-display: block; src: url(fonts/JetBrainsMono.woff2) format("woff2"); }
 
   :root {
-    --teal: #0B2D33; --teal-soft: #0D3235; --elev: #11383D;
-    --green: #2AF45F; --green-bright: #57C96F;
-    --fg: #fff; --muted: rgba(255,255,255,.72); --subtle: rgba(255,255,255,.5);
-    --border: rgba(255,255,255,.10); --border-strong: rgba(255,255,255,.22);
-    --font: "Baloo Bhaijaan 2", system-ui, sans-serif;
+    --teal: #0B2D33; --deep: #082226; --elev: #11383D; --green: #2AF45F; --green-bright: #57C96F; --paper: #F4F7F6;
+    --font: "Baloo Bhaijaan 2", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: #000; overflow: hidden; }
   body { display: grid; place-items: center; font-family: var(--font); }
-  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--teal); color: var(--fg); transform-origin: center; }
-  .scene { position: absolute; inset: 0; display: none; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--teal); color: #fff; transform-origin: center; }
+  #cv { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+  .scene { position: absolute; inset: 0; display: none; transform-origin: 50% 45%; }
   .r { position: absolute; right: 80px; left: 80px; text-align: right; white-space: nowrap; transform-origin: right center; }
-  .d { font-weight: 800; line-height: 1.12; }            /* display */
-  .u { font-weight: 500; color: var(--muted); line-height: 1.3; }   /* UI */
-  .g { color: var(--green); }
-  .mask { overflow: hidden; }
+  .c { position: absolute; left: 80px; right: 80px; text-align: center; white-space: nowrap; transform-origin: center; }
+  .d { font-weight: 800; line-height: 1.1; }
+  .u { font-weight: 500; line-height: 1.3; }
+  .mask { overflow: hidden; padding-bottom: .08em; }
   .mask > span { display: inline-block; }
-  .bar-line { position: absolute; right: 80px; height: 12px; background: var(--green); border-radius: 12px; }
-  .chip { display: inline-flex; align-items: center; gap: 18px; height: 120px; padding: 0 44px; border-radius: 999px; font-size: 64px; font-weight: 700; white-space: nowrap; }
-  svg.i { width: 60px; height: 60px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .card { position: absolute; inset: 0; }
+  .ink { color: var(--teal); } .g { color: var(--green); } .w { color: #fff; }
+  svg.i { stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* HUD — technical frame, colour follows the field underneath */
+  #hud { position: absolute; inset: 0; pointer-events: none; color: var(--hud, rgba(255,255,255,.7)); font: 500 26px/1 var(--mono); letter-spacing: .06em; direction: ltr; z-index: 20; }
+  #hud .cr { position: absolute; width: 44px; height: 44px; border-color: currentColor; border-style: solid; border-width: 0; opacity: .8; }
+  #hud .tl { left: 36px; top: 36px; border-left-width: 3px; border-top-width: 3px; }
+  #hud .tr { right: 36px; top: 36px; border-right-width: 3px; border-top-width: 3px; }
+  #hud .bl { left: 36px; bottom: 36px; border-left-width: 3px; border-bottom-width: 3px; }
+  #hud .br { right: 36px; bottom: 36px; border-right-width: 3px; border-bottom-width: 3px; }
+  #hud .t { position: absolute; white-space: nowrap; }
+  #hTL { left: 100px; top: 58px; font-weight: 700; } #hTR { right: 100px; top: 52px; font: 700 30px/1 var(--font); direction: rtl; }
+  #hBL { left: 100px; bottom: 56px; } #hBR { right: 100px; bottom: 56px; }
+  #hBR i { display: inline-block; width: 16px; height: 16px; border: 2px solid currentColor; margin-left: 6px; vertical-align: -1px; }
+  #hBR i.on { background: currentColor; }
+  #grain { position: absolute; inset: 0; z-index: 19; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='14' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  #wipe { position: absolute; inset: 0; display: none; }   /* below the scenes (DOM order), above the canvas */
 
   /* A — hook */
-  .w { position: absolute; white-space: nowrap; font-weight: 700; }
-  .w.pill { background: var(--fg); color: var(--teal); border-radius: 999px; padding: 0 .45em; }
-  #line { position: absolute; height: 12px; top: 954px; background: var(--green); border-radius: 12px; }
-  #n40 { top: 520px; font-size: 520px; line-height: 1; }
-  #sec { top: 1060px; font-size: 170px; }
-  #secSub { top: 1320px; font-size: 68px; }
+  .pill { position: absolute; white-space: nowrap; font-weight: 700; background: #fff; color: var(--teal); border-radius: 999px; padding: 0 .45em; z-index: 3; }
+  #n40 { top: 470px; font-size: 600px; line-height: 1; }
+  #sec { top: 1080px; font-size: 190px; }
+  #timer { position: absolute; right: 80px; top: 1310px; height: 14px; background: var(--teal); border-radius: 14px; }
+  #secSub { top: 1360px; font-size: 70px; }
 
-  /* B — problem */
-  #p1 { top: 620px; font-size: 130px; } #p2 { top: 860px; font-size: 150px; } #p3 { top: 1040px; font-size: 150px; }
+  /* P — problem cards */
+  #pc1 { background: var(--paper); } #pc2 { background: var(--teal); } #pc3 { background: var(--green); }
+  #pc1a { top: 640px; font-size: 110px; opacity: .7; } #pc1b { top: 780px; font-size: 210px; }
+  #pc2a { top: 560px; font-size: 280px; } #pc2b { top: 870px; font-size: 280px; }
+  #pc3a { top: 700px; font-size: 360px; }
 
-  /* C — study */
-  #eyebrow { top: 260px; font-size: 60px; color: var(--green); }
-  #stTitle { top: 360px; font-size: 110px; }
-  #n10 { top: 600px; font-size: 520px; line-height: 1; }
-  #n10u { top: 1130px; font-size: 150px; }
-  #n10s { top: 1340px; font-size: 64px; white-space: normal; }
+  /* S1 — attention vs age chart */
+  #s1eye { top: 190px; font: 700 34px/1 var(--mono); letter-spacing: .08em; direction: ltr; text-align: right; opacity: .7; }
+  #s1title { top: 250px; font-size: 104px; }
+  #s1pill { position: absolute; top: 0; left: 0; background: var(--green); color: var(--teal); font-weight: 800; font-size: 76px; padding: 4px 38px; border-radius: 999px; white-space: nowrap; transform-origin: center; }
+  #s1sub { top: 1380px; font-size: 68px; white-space: normal; }
 
-  /* D — 91% */
-  #ring { position: absolute; left: 50%; top: 330px; width: 760px; height: 760px; margin-left: -380px; }
-  #ring circle { fill: none; stroke-width: 44; }
-  #pct { position: absolute; left: 0; right: 0; top: 540px; text-align: center; font-size: 280px; font-weight: 800; line-height: 1; color: var(--green); }
-  #pctSub { top: 1160px; font-size: 84px; text-align: center; color: var(--fg); font-weight: 800; }
-  #metrics { position: absolute; top: 1330px; left: 80px; right: 80px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-  #metrics .chip { height: 110px; font-size: 62px; background: var(--elev); border: 1px solid var(--border); color: var(--fg); }
+  /* S2 — 91% dot grid */
+  #pct { top: 150px; font-size: 330px; line-height: 1; }
+  #dotsLbl { top: 1370px; font-size: 92px; }
+  #metrics { position: absolute; top: 1520px; left: 80px; right: 80px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+  #metrics div { height: 104px; padding: 0 40px; border-radius: 999px; background: var(--teal); color: #fff; font-size: 58px; font-weight: 700; display: grid; place-items: center; white-space: nowrap; }
 
-  /* E — product */
-  #prod1 { top: 560px; font-size: 200px; }
-  #prod2 { top: 850px; font-size: 130px; }
-  #pline { top: 1090px; }
-  #prodSub { top: 1180px; font-size: 64px; }
+  /* PR — product */
+  #prMark { position: absolute; left: 540px; top: 720px; width: 260px; height: 236px; margin: -118px 0 0 -130px;
+    background: url(assets/logo-green.png) no-repeat; background-size: 860px 243px; background-position: -6px -2px; }
+  #prTitle { top: 1150px; font-size: 190px; }
+  #prSub { top: 1380px; font-size: 128px; }
 
-  /* F — simple phone */
-  #fTitle { top: 220px; font-size: 120px; }
-  .lbl { font-size: 56px; font-weight: 700; }
-  #blkLbl { top: 470px; color: var(--subtle); }
-  #okLbl { top: 1060px; color: var(--green); }
-  .row { position: absolute; left: 80px; right: 80px; display: flex; flex-wrap: wrap; gap: 24px; justify-content: flex-start; }
-  #blk { top: 560px; } #ok { top: 1150px; }
-  #blk .chip { background: var(--elev); color: var(--muted); border: 1px solid var(--border); position: relative; }
-  #blk .chip .x { position: absolute; right: 30px; left: 30px; top: 50%; height: 8px; margin-top: -4px; background: var(--green); border-radius: 8px; transform-origin: right; }
-  #ok .chip { border: 3px solid var(--green); color: var(--fg); }
+  /* PH — simple phone tiles */
+  #phTitle { top: 190px; font-size: 118px; }
+  #tiles { position: absolute; top: 420px; left: 80px; right: 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px 40px; }
+  .tile { height: 196px; border-radius: 36px; position: relative; transform-origin: center; }
+  .tile .face { position: absolute; inset: 0; border-radius: 36px; display: flex; align-items: center; gap: 26px; padding: 0 36px; font-size: 64px; font-weight: 800; white-space: nowrap; }
+  .tile .face svg { width: 76px; height: 76px; flex: none; }
+  .tile .lb { font-size: var(--fs, 64px); }
+  .tile.blk .front { background: var(--teal); color: #fff; }
+  .tile.blk .back { background: rgba(11,45,51,.12); color: rgba(11,45,51,.45); text-decoration: line-through; text-decoration-thickness: 6px; }
+  .tile.ok .front { background: #fff; color: var(--teal); box-shadow: inset 0 0 0 3px rgba(11,45,51,.12); }
+  .tile .badge { position: absolute; left: -14px; top: -14px; width: 64px; height: 64px; border-radius: 50%; background: var(--teal); color: var(--green); display: grid; place-items: center; }
+  .tile .badge svg { width: 40px; height: 40px; stroke-width: 3; }
+  #phLegend { top: 1590px; font: 700 34px/1 var(--mono); letter-spacing: .06em; direction: ltr; text-align: right; opacity: .6; }
 
-  /* G — tracker */
-  #gPhase { top: 200px; font-size: 64px; color: var(--green); font-weight: 700; }
-  #gTitle { top: 290px; font-size: 130px; }
-  #gSub { top: 460px; font-size: 64px; }
-  #days { position: absolute; top: 620px; left: 80px; right: 80px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 18px; }
-  .day { height: 150px; border-radius: 22px; background: var(--elev); border: 1px solid var(--border);
-    display: grid; place-items: center; font-size: 64px; font-weight: 800; color: var(--subtle); position: relative; overflow: hidden; }
-  .day .f { position: absolute; inset: 0; background: var(--green); transform-origin: bottom; }
-  .day .n { position: relative; }
-  #wk { position: absolute; top: 960px; left: 80px; right: 80px; height: 64px; font-size: 48px; font-weight: 700; color: var(--subtle); }
-  #wk span { position: absolute; top: 0; width: calc(50% - 9px); text-align: center; }
-  #wk span:first-child { right: 0; } #wk span:last-child { left: 0; }
-  #dayNum { top: 1080px; font-size: 300px; }
-  #dayNum .u { font-size: 120px; color: var(--fg); font-weight: 800; }
+  /* TR — 14-day point grid */
+  #trPhase { top: 190px; font-size: 64px; font-weight: 800; }
+  #trTitle { top: 270px; font-size: 140px; }
+  #trSub { top: 450px; font-size: 66px; opacity: .75; }
+  #trNum { top: 1560px; font-size: 170px; }
+  #trNum .u { font-size: 100px; color: #fff; font-weight: 800; }
 
-  /* H — focus grows */
-  #hTitle { top: 220px; font-size: 120px; }
-  #bars { position: absolute; left: 80px; right: 80px; top: 580px; height: 880px; display: flex; gap: 40px; align-items: flex-end; }
+  /* FO — focus bars */
+  #foTitle { top: 190px; font-size: 118px; }
+  #bars { position: absolute; left: 80px; right: 80px; top: 560px; height: 920px; display: flex; gap: 36px; align-items: flex-end; }
   .bar { flex: 1; position: relative; height: 100%; display: flex; align-items: flex-end; }
-  .bar .col { width: 100%; background: var(--elev); border: 1px solid var(--border); border-radius: 28px; transform-origin: bottom; }
-  .bar.last .col { background: var(--green); border-color: transparent; }
-  .bar .v { position: absolute; left: 0; right: 0; text-align: center; font-size: 72px; font-weight: 800; }
-  .bar .v small { font-size: 44px; font-weight: 500; color: var(--muted); }
-  #hSub { top: 1560px; font-size: 76px; color: var(--fg); font-weight: 800; }
+  .bar .col { width: 100%; background: var(--teal); border-radius: 30px; transform-origin: bottom; }
+  .bar.last .col { background: #fff; }
+  .bar .v { position: absolute; left: 0; right: 0; text-align: center; font-size: 104px; font-weight: 800; color: var(--teal); line-height: 1; }
+  .bar .v small { display: block; font-size: 40px; font-weight: 700; font-family: var(--mono); letter-spacing: .1em; }
+  #foSub { top: 1540px; font-size: 80px; }
 
-  /* I — day 14 before/after */
-  #iEye { top: 240px; font-size: 64px; color: var(--green); font-weight: 700; }
-  #iTitle { top: 330px; font-size: 130px; }
-  .res { position: absolute; left: 80px; right: 80px; height: 220px; border-radius: 28px; background: var(--elev); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between; padding: 0 56px; }
-  .res b { font-size: 76px; font-weight: 800; }
-  .res .arr { width: 140px; height: 140px; border-radius: 50%; background: var(--green); color: var(--teal); display: grid; place-items: center; }
-  .res .arr svg { width: 84px; height: 84px; stroke-width: 2.6; }
+  /* RE — results */
+  #reEye { top: 200px; font-size: 64px; font-weight: 800; }
+  #reTitle { top: 280px; font-size: 130px; }
+  .res { position: absolute; left: 80px; right: 80px; height: 250px; border-radius: 40px; background: var(--elev);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 50px 0 40px; }
+  .res b { font-size: 92px; font-weight: 800; }
+  .res .arr { width: 180px; height: 180px; border-radius: 50%; background: var(--green); color: var(--teal); display: grid; place-items: center; }
+  .res .arr svg { width: 110px; height: 110px; stroke-width: 2.6; }
 
-  /* J — core message */
-  #m1 { top: 680px; font-size: 170px; } #m2 { top: 900px; font-size: 150px; }
-  #mline { top: 1140px; }
+  /* ME — message cards */
+  #me1 { background: var(--teal); } #me2 { background: #fff; } #me3 { background: var(--green); }
+  #me1a { top: 760px; font-size: 250px; } #me2a { top: 780px; font-size: 210px; } #me3a { top: 700px; font-size: 360px; }
 
-  /* K — end card */
-  #grad { position: absolute; inset: 0; background: radial-gradient(120% 90% at 0% 100%, var(--green-bright) 0%, var(--teal-soft) 45%, var(--teal) 75%); }
-  /* fixed, low-intensity grain over the gradient: dithers away 8-bit banding (static, same every frame) */
-  #grad::after { content: ""; position: absolute; inset: 0; opacity: .09; mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='14' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  #logo { position: absolute; left: 80px; top: 180px; width: 740px; height: 209px; }
+  /* EN — end card */
+  #grad { position: absolute; inset: 0; background: radial-gradient(120% 90% at 0% 100%, var(--green-bright) 0%, #0D3235 45%, var(--teal) 75%); }
+  #logo { position: absolute; left: 90px; top: 440px; width: 900px; height: 254px; }
   #logo img { position: absolute; inset: 0; width: 100%; height: 100%; }
-  #k1 { top: 700px; font-size: 150px; } #k2 { top: 880px; font-size: 110px; }
-  #btn { position: absolute; right: 80px; top: 1140px; padding: 30px 90px; border-radius: 999px; background: var(--green); color: var(--teal); font-size: 84px; font-weight: 800; line-height: 1.3; white-space: nowrap; transform-origin: right center; }
-  #bio { top: 1340px; font-size: 64px; }
-  #social { position: absolute; left: 80px; bottom: 120px; height: 96px; }
+  #k1 { top: 900px; font-size: 150px; } #k2 { top: 1080px; font-size: 118px; }
+  #btn { position: absolute; right: 80px; top: 1300px; padding: 26px 96px; border-radius: 999px; background: var(--green); color: var(--teal); font-size: 90px; font-weight: 800; line-height: 1.3; white-space: nowrap; transform-origin: right center; }
+  #bio { top: 1490px; font-size: 64px; opacity: .8; }
+  #social { position: absolute; left: 80px; bottom: 190px; height: 92px; }
 
-  #controls { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 5; direction: ltr; }
+  #controls { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 50; direction: ltr; }
   #controls button { font: 700 15px var(--font); padding: 8px 18px; border-radius: 999px; border: 0; background: var(--green); color: var(--teal); cursor: pointer; }
   body.capture #controls { display: none; }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute"><defs id="fx"></defs></svg>
 <div id="stage">
+  <canvas id="cv"></canvas>
+  <div id="wipe"></div>
+
   <section class="scene" id="A">
     <div id="chaos" style="position:absolute;inset:0"></div>
-    <div id="line"></div>
-    <div class="r d g" id="n40">٤٠</div>
-    <div class="r d mask" id="sec"><span>ثانية.</span></div>
-    <div class="r u mask" id="secSub"><span>متوسط بقائك على شاشة وحدة قبل ما تتنقل</span></div>
+    <div class="c d ink" id="n40">٤٠</div>
+    <div class="r d ink mask" id="sec"><span>ثانية.</span></div>
+    <div id="timer"></div>
+    <div class="r u ink mask" id="secSub"><span>متوسط بقائك على شاشة وحدة قبل ما تتنقل</span></div>
   </section>
 
-  <section class="scene" id="Bp">
-    <div class="r u mask" id="p1"><span>جرّبت نصايح عامة؟</span></div>
-    <div class="r d mask" id="p2"><span>الإرادة لحالها</span></div>
-    <div class="r d g mask" id="p3"><span>ما تكفي.</span></div>
+  <section class="scene" id="P">
+    <div class="card" id="pc1"><div class="r u ink" id="pc1a">جرّبت</div><div class="r d ink" id="pc1b">نصايح عامة؟</div></div>
+    <div class="card" id="pc2"><div class="r d w" id="pc2a">الإرادة</div><div class="r d w" id="pc2b">لحالها</div></div>
+    <div class="card" id="pc3"><div class="r d ink" id="pc3a">ما تكفي.</div></div>
   </section>
 
-  <section class="scene" id="C">
-    <div class="r mask" id="eyebrow"><span>دراسة علمية محكّمة · ٢٠٢٥</span></div>
-    <div class="r d mask" id="stTitle"><span>أسبوعين بدون إنترنت الجوال</span></div>
-    <div class="r d g" id="n10">١٠</div>
-    <div class="r d mask" id="n10u"><span>سنوات</span></div>
-    <div class="r u mask" id="n10s"><span>تحسّن في الانتباه يعادل ١٠ سنوات<br>من التراجع العمري</span></div>
+  <section class="scene" id="S1">
+    <div class="r ink" id="s1eye">PEER-REVIEWED STUDY · 2025</div>
+    <div class="r d ink mask" id="s1title"><span>أسبوعين بدون إنترنت الجوال</span></div>
+    <div id="s1pill">١٠ سنوات</div>
+    <div class="r u ink mask" id="s1sub"><span>تحسّن الانتباه بما يعادل<br>عكس ١٠ سنوات من التراجع العمري</span></div>
   </section>
 
-  <section class="scene" id="D">
-    <svg id="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.10)" stroke-width="5.8" style="stroke-width:5.8"/><circle id="arc" cx="50" cy="50" r="44" stroke="#2AF45F" style="stroke-width:5.8" stroke-linecap="round" transform="rotate(-90 50 50)"/></svg>
-    <div id="pct">٠٪</div>
-    <div class="r mask" id="pctSub"><span>من المشاركين تحسّنوا</span></div>
-    <div id="metrics"><div class="chip">الانتباه</div><div class="chip">الصحة النفسية</div><div class="chip">الرضا عن الحياة</div></div>
+  <section class="scene" id="S2">
+    <div class="c d ink" id="pct">٠٪</div>
+    <div class="c d ink mask" id="dotsLbl"><span>من المشاركين تحسّنوا</span></div>
+    <div id="metrics"><div>الانتباه</div><div>الصحة النفسية</div><div>الرضا عن الحياة</div></div>
   </section>
 
-  <section class="scene" id="E">
-    <div class="r d" id="prod1">تحدي <span class="g">١٤</span> يوم</div>
-    <div class="r d mask" id="prod2"><span>لاستعادة التركيز</span></div>
-    <div class="bar-line" id="pline"></div>
-    <div class="r u mask" id="prodSub"><span>مبني على نفس مدة الدراسة بالضبط</span></div>
+  <section class="scene" id="PR">
+    <div id="prMark"></div>
+    <div class="c d w" id="prTitle">تحدي <span class="g">١٤</span> يوم</div>
+    <div class="c d g mask" id="prSub"><span>لاستعادة التركيز</span></div>
   </section>
 
-  <section class="scene" id="F">
-    <div class="r d mask" id="fTitle"><span>جوالك يصير «بسيط»</span></div>
-    <div class="r lbl" id="blkLbl">محجوب</div>
-    <div class="row" id="blk"></div>
-    <div class="r lbl" id="okLbl">مسموح</div>
-    <div class="row" id="ok"></div>
+  <section class="scene" id="PH">
+    <div class="r d ink mask" id="phTitle"><span>جوالك يصير «بسيط»</span></div>
+    <div id="tiles"></div>
+    <div class="r ink" id="phLegend">BLOCKED 4 · ALLOWED 6</div>
   </section>
 
-  <section class="scene" id="G">
-    <div class="r mask" id="gPhase"><span>أسبوع ١ · القطع</span></div>
-    <div class="r d mask" id="gTitle"><span>يوم بيوم</span></div>
-    <div class="r u mask" id="gSub"><span>مهمة ومتابعة كل يوم</span></div>
-    <div id="days"></div>
-    <div class="r d g" id="dayNum">١</div>
+  <section class="scene" id="TR">
+    <div class="r g mask" id="trPhase"><span>أسبوع ١ · القطع</span></div>
+    <div class="r d w mask" id="trTitle"><span>يوم بيوم</span></div>
+    <div class="r u w mask" id="trSub"><span>مهمة ومتابعة كل يوم</span></div>
+    <div class="r d g" id="trNum">١</div>
   </section>
 
-  <section class="scene" id="H">
-    <div class="r d mask" id="hTitle"><span>جلسة التركيز تطول</span></div>
+  <section class="scene" id="FO">
+    <div class="r d ink mask" id="foTitle"><span>جلسة التركيز تطول</span></div>
     <div id="bars"></div>
-    <div class="r mask" id="hSub"><span>من ٣٠ لـ <span class="g">٩٠ دقيقة</span> متواصلة</span></div>
+    <div class="r d ink mask" id="foSub"><span>من ٣٠ لـ ٩٠ دقيقة متواصلة</span></div>
   </section>
 
-  <section class="scene" id="I">
-    <div class="r mask" id="iEye"><span>يوم ١٤</span></div>
-    <div class="r d mask" id="iTitle"><span>قبل وبعد… بالأرقام</span></div>
+  <section class="scene" id="RE">
+    <div class="r g mask" id="reEye"><span>يوم ١٤</span></div>
+    <div class="r d w mask" id="reTitle"><span>قبل وبعد… بالأرقام</span></div>
     <div id="rows"></div>
   </section>
 
-  <section class="scene" id="J">
-    <div class="r d mask" id="m1"><span>أسبوعين…</span></div>
-    <div class="r d g" id="m2">وترجع تملك انتباهك</div>
-    <div class="bar-line" id="mline"></div>
+  <section class="scene" id="ME">
+    <div class="card" id="me1"><div class="r d w" id="me1a">أسبوعين…</div></div>
+    <div class="card" id="me2"><div class="r d ink" id="me2a">وترجع تملك</div></div>
+    <div class="card" id="me3"><div class="r d ink" id="me3a">انتباهك</div></div>
   </section>
 
-  <section class="scene" id="K">
+  <section class="scene" id="EN">
     <div id="grad"></div>
+    <canvas id="burst" style="position:absolute;inset:0;width:1080px;height:1920px"></canvas>
     <div id="logo"><img id="logoW" src="assets/logo-white.png" alt=""><img id="logoG" src="assets/logo-green.png" alt=""></div>
-    <div class="r d mask" id="k1"><span>تحدي ١٤ يوم</span></div>
+    <div class="r d w mask" id="k1"><span>تحدي ١٤ يوم</span></div>
     <div class="r d g mask" id="k2"><span>لاستعادة التركيز</span></div>
     <div id="btn">سجّل الآن</div>
-    <div class="r u mask" id="bio"><span>الرابط في البايو</span></div>
+    <div class="r u w mask" id="bio"><span>الرابط في البايو</span></div>
     <img id="social" src="assets/social-row.png" alt="@saudifitx">
   </section>
+
+  <div id="grain"></div>
+  <div id="hud">
+    <i class="cr tl"></i><i class="cr tr"></i><i class="cr bl"></i><i class="cr br"></i>
+    <div class="t" id="hTL">SAUDIFITX — FOCUS/14</div>
+    <div class="t" id="hTR"></div>
+    <div class="t" id="hBL"></div>
+    <div class="t" id="hBR"></div>
+  </div>
 </div>
 
 <div id="controls"><button id="play">▶ Play</button><button id="replay">↻ Replay</button></div>
@@ -223,245 +237,396 @@ const AR = n => String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const p = (t, a, b) => clamp((t - a) / (b - a));
 const lerp = (a, b, k) => a + (b - a) * k;
-const out = k => 1 - Math.pow(1 - k, 5);                         // brand entrance ease, no overshoot
+const out = k => 1 - Math.pow(1 - k, 5);                         // entrance ease, no overshoot (brand)
 const io = k => k < .5 ? 16 * k ** 5 : 1 - Math.pow(-2 * k + 2, 5) / 2;
-const decay = (t, t0, len) => t < t0 ? 0 : Math.exp(-(t - t0) / len);   // beat-hit envelope
-
+const decay = (t, t0, len) => t < t0 ? 0 : Math.exp(-(t - t0) / len);
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-const hash = (i, n) => mulberry32(i * 7919 + n * 104729 + 1)();    // seeded per-(item, step) noise
+const hash = (i, n) => mulberry32(i * 7919 + n * 104729 + 1)();
+const COL = { teal: "#0B2D33", deep: "#082226", elev: "#11383D", green: "#2AF45F", paper: "#F4F7F6", white: "#FFFFFF" };
 
-// Timing: cue beat indices come from timeline.json, beat times from the measured beats.json. Set once at load.
-let BEATS = null, CUES = null, DURATION = 0, PERIOD = .6;
-const B = i => {                                   // beat index (fractional ok) → seconds on the measured grid
-  const k = Math.floor(i), f = i - k, n = BEATS.length;
-  const at = j => j < n ? BEATS[j] : BEATS[n - 1] + (j - n + 1) * PERIOD;
-  return at(k) + f * PERIOD;
-};
+// Timing: cue beat indices from timeline.json, beat times from the measured beats.json. Set once at load.
+let BEATS = null, CUES = null, DURATION = 0, PERIOD = .6, BPM = 100, BARS = 1;
+const B = i => { const k = Math.floor(i), f = i - k, n = BEATS.length; const at = j => j < n ? BEATS[j] : BEATS[n - 1] + (j - n + 1) * PERIOD; return at(k) + f * PERIOD; };
 const BEAT = () => PERIOD;
-const C = (name, plus = 0) => B(CUES[name] + plus);  // cue time, optionally + beats
+const C = (name, plus = 0) => B(CUES[name] + plus);
 
-function css(el, { x = 0, y = 0, s = 1, sx = s, sy = s, o = 1, blur = 0, base = "" }) {
-  el.style.transform = `${base} translate(${x}px,${y}px) scale(${sx},${sy})`;
-  el.style.opacity = o;
-  el.style.filter = blur > .05 ? `blur(${blur}px)` : "none";
+// directional motion blur: one SVG blur filter per element, x-only stdDeviation set per frame
+const FX = new Map();
+function mb(el, amount) {
+  if (!FX.has(el)) {
+    const id = "mb" + FX.size;
+    $("fx").insertAdjacentHTML("beforeend", `<filter id="${id}" x="-50%" y="-20%" width="200%" height="140%"><feGaussianBlur stdDeviation="0 0"/></filter>`);
+    FX.set(el, $("fx").lastElementChild.firstElementChild);
+    FX.get(el).dataset.id = id;
+  }
+  const g = FX.get(el);
+  g.setAttribute("stdDeviation", `${amount.toFixed(1)} 0`);
+  return amount > .4 ? `url(#${g.dataset.id})` : "none";
 }
-// mask reveal: inner span rises from below its own line box
-function reveal(el, t, t0, dur = .28) {
+function css(el, { x = 0, y = 0, s = 1, sx = s, sy = s, o = 1, skew = 0, blur = 0, mblur = 0, rot = 0 }) {
+  el.style.transform = `translate(${x}px,${y}px) skewX(${skew}deg) rotate(${rot}deg) scale(${sx},${sy})`;
+  el.style.opacity = o;
+  el.style.filter = mblur > .4 ? mb(el, mblur) : blur > .05 ? `blur(${blur}px)` : "none";
+}
+function reveal(el, t, t0, dur = .3) {
   const k = out(p(t, t0, t0 + dur));
   el.style.visibility = t >= t0 ? "visible" : "hidden";
-  el.firstElementChild.style.transform = `translateY(${lerp(105, 0, k)}%)`;
+  el.firstElementChild.style.transform = `translateY(${lerp(110, 0, k)}%)`;
 }
-// scale-down slam (arrives on t0)
-function slam(el, t, t0, from = 1.8) {
-  const k = out(p(t, t0 - .12, t0));
-  el.style.visibility = t >= t0 - .12 ? "visible" : "hidden";
-  css(el, { s: lerp(from, 1, k) + .05 * decay(t, t0, .15), o: k });
+// kinetic slam: flies in along x with directional motion blur and skew, lands exactly on t0
+function slam(el, t, t0, { from = 900, dur = .2 } = {}) {
+  const k = out(p(t, t0 - dur, t0)), v = 1 - k;
+  el.style.visibility = t >= t0 - dur ? "visible" : "hidden";
+  css(el, { x: from * v, skew: -14 * v, mblur: 70 * v, s: 1 + .05 * decay(t, t0, .15) });
 }
-// count up with a per-tick odometer roll
-function counter(el, t, ticks, from, to) {
-  const k = ticks.filter(x => t >= x).length;
-  el.textContent = AR(Math.round(lerp(from, to, k / ticks.length)));
-  const last = k ? ticks[k - 1] : -1, roll = k ? 1 - out(p(t, last, last + .06)) : 0;
-  return roll;
+// full-field card cut: pushes in from the left with blur, text trails behind (parallax)
+function cardIn(card, t, t0, t1) {
+  const on = t >= t0 - .2 && t < t1;
+  card.style.display = on ? "block" : "none";
+  if (!on) return;
+  const k = out(p(t, t0 - .2, t0 + .02));
+  css(card, { x: lerp(-1080, 0, k), mblur: 90 * (1 - k) });
+  [...card.children].forEach((el, i) => css(el, { x: lerp(-500 - i * 200, 0, out(p(t, t0 - .16, t0 + .12 + i * .05))), s: 1 + .04 * decay(t, t0, .15) }));
 }
-const line = (el, t, a, b, w = 920) => { el.style.width = io(p(t, a, b)) * w + "px"; };
-// scene toggle + a slow 3% push-in across the scene so held frames keep breathing
 const scene = (id, t, a, b) => {
   const on = t >= a && t < b, el = $(id);
   el.style.display = on ? "block" : "none";
-  if (on) el.style.transform = `scale(${1 + .03 * p(t, a, Math.min(b, a + 8))})`;
+  if (on) el.style.transform = `scale(${1 + .025 * p(t, a, Math.min(b, a + 8))})`;
   return on;
 };
 const ICON = {
-  check: '<path d="M20 6 9 17l-5-5"/>',
-  down: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
-  up: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>', down: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>', up: '<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  news: '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+  phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+  chat: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  id: '<path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>',
+  bank: '<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+  pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  work: '<rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
 };
-const svg = k => `<svg class="i" viewBox="0 0 24 24">${ICON[k]}</svg>`;
+const svg = (k, cls = "i") => `<svg class="${cls}" viewBox="0 0 24 24">${ICON[k]}</svg>`;
 
-// ── static layout built once (deterministic)
+// ── static layout (deterministic, built once)
+const cv = $("cv"), ctx = cv.getContext("2d"), burst = $("burst"), bctx = burst.getContext("2d");
+const DPR = window.devicePixelRatio || 1;
+for (const c of [cv, burst]) { c.width = 1080 * DPR; c.height = 1920 * DPR; }
+
 const WORDS = ["إشعار", "رسالة جديدة", "٩٩+", "تمرير", "فيديو قصير", "تنبيه", "بث مباشر", "@منشن", "ريلز", "لايك", "٣ رسائل", "تحديث", "ستوري", "إعلان", "١٢+", "تعليق", "قروب", "مكالمة فائتة"];
-const rng = mulberry32(14);
+const rng = mulberry32(14);   // same seed + draw order as score.py → pings land on these words
 const CHAOS = WORDS.map((w, i) => ({
   w, appear: (r => i < 6 ? i * .03 : .18 + r * .6)(rng()), x: 40 + rng() * 760, y: 160 + rng() * 1540,
-  size: 70 + rng() * 80, rot: (rng() - .5) * 16, pill: rng() < .35,
+  size: 60 + rng() * 60, rot: (rng() - .5) * 16, pill: rng() < .35,
 }));
-$("chaos").innerHTML = CHAOS.map(c => `<div class="w${c.pill ? " pill" : ""}" style="left:${c.x}px;top:${c.y}px;font-size:${c.size | 0}px">${c.w}</div>`).join("");
+$("chaos").innerHTML = CHAOS.map(c => `<div class="pill" style="left:${c.x}px;top:${c.y}px;font-size:${c.size | 0}px">${c.w}</div>`).join("");
 const chaosEls = [...$("chaos").children];
+const TILE = 90, TC = 12, TR_ = 22;
 
-const BLOCKED = ["السوشال", "الفيديو", "الأخبار", "المتصفح"];
-const ALLOWED = ["الاتصال", "واتساب", "نفاذ", "البنك", "الخرائط", "تطبيقات الدوام"];
-$("blk").innerHTML = BLOCKED.map(w => `<div class="chip">${w}<i class="x"></i></div>`).join("");
-$("ok").innerHTML = ALLOWED.map(w => `<div class="chip">${svg("check")}${w}</div>`).join("");
-const blkEls = [...$("blk").children], okEls = [...$("ok").children];
-
-$("days").innerHTML = Array.from({ length: 14 }, (_, i) => `<div class="day"><div class="f"></div><span class="n">${AR(i + 1)}</span></div>`).join("");
-const dayEls = [...$("days").children];
+const TILES = [["السوشال", "users", 0], ["الفيديو", "play", 0], ["الأخبار", "news", 0], ["المتصفح", "globe", 0],
+  ["الاتصال", "phone", 1], ["واتساب", "chat", 1], ["نفاذ", "id", 1], ["البنك", "bank", 1], ["الخرائط", "pin", 1], ["تطبيقات الدوام", "work", 1]];
+$("tiles").innerHTML = TILES.map(([l, ic, ok]) => { const fs = l.length > 8 ? "--fs:40px" : ""; return `<div class="tile ${ok ? "ok" : "blk"}"><div class="face front">${svg(ic)}<span class="lb" style="${fs}">${l}</span>${ok ? `<div class="badge">${svg("check")}</div>` : ""}</div>${ok ? "" : `<div class="face back">${svg(ic)}<span class="lb" style="${fs}">${l}</span></div>`}</div>`; }).join("");
+const tileEls = [...$("tiles").children];
 
 const MINS = [30, 45, 60, 90];
-$("bars").innerHTML = MINS.map((m, i) => `<div class="bar${i === 3 ? " last" : ""}"><div class="col" style="height:${m / 90 * 100}%"></div><div class="v" style="bottom:calc(${m / 90 * 100}% + 16px)">${AR(m)}<small> د</small></div></div>`).join("");
+$("bars").innerHTML = MINS.map((m, i) => `<div class="bar${i === 3 ? " last" : ""}"><div class="col" style="height:${m / 90 * 100}%"></div><div class="v" style="bottom:calc(${m / 90 * 100}% + 20px)"><span>٠</span><small>MIN</small></div></div>`).join("");
 const barEls = [...$("bars").children];
 
 const RESULTS = [["وقت الشاشة", "down"], ["مرات فتح الجوال", "down"], ["مدة التركيز", "up"]];
-$("rows").innerHTML = RESULTS.map(([l, a], i) => `<div class="res" style="top:${620 + i * 270}px"><b>${l}</b><div class="arr">${svg(a)}</div></div>`).join("");
+$("rows").innerHTML = RESULTS.map(([l, a], i) => `<div class="res" style="top:${560 + i * 300}px"><b>${l}</b><div class="arr">${svg(a)}</div></div>`).join("");
 const resEls = [...$("rows").children];
 
-const ARC = 2 * Math.PI * 44;
+const SECTIONS = [["problem0", "٠١ — المشكلة"], ["study", "٠٢ — الدليل"], ["product", "٠٣ — التحدي"], ["phone", "٠٤ — الخطة"], ["results", "٠٥ — النتيجة"], ["end", "٠٦ — ابدأ"]];
+
+// chart geometry for the attention-vs-age curve
+const CH = { x0: 130, x1: 950, y0: 640, y1: 1240, a0: 20, a1: 70 };
+const ageX = a => lerp(CH.x0, CH.x1, (a - CH.a0) / (CH.a1 - CH.a0));
+const attY = a => lerp(CH.y0 + 40, CH.y1 - 40, Math.pow((a - CH.a0) / (CH.a1 - CH.a0), 1.5) * .9);
+
+// product ring dots: seeded scatter → ring
+const ringRng = mulberry32(77);
+const RING = Array.from({ length: 14 }, () => ({ x: 120 + ringRng() * 840, y: 300 + ringRng() * 900 }));
+// end-card burst particles
+const bRng = mulberry32(99);
+const PARTS = Array.from({ length: 80 }, () => ({ a: bRng() * Math.PI * 2, v: 500 + bRng() * 1500, s: 6 + bRng() * 16, kind: bRng(), col: bRng() < .6 ? COL.green : "#fff", life: 1.1 + bRng() * 1.2 }));
+
+function field(color) { $("stage").style.background = color; }
+function hud(dark) { $("hud").style.setProperty("--hud", dark ? "rgba(11,45,51,.75)" : "rgba(255,255,255,.72)"); }
 
 function seek(t) {
-  // A — hook: chaos → snap to the focus line → ٤٠ ثانية
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, 1080, 1920);
+  $("wipe").style.display = "none";
+
+  // ── HUD: section label, timecode, bar counter
+  {
+    let label = SECTIONS[0][1];
+    for (const [cue, l] of SECTIONS) if (cue === "problem0" || t >= C(cue)) label = l;
+    $("hTR").textContent = label;
+    const f = Math.floor(t * 60), ss = Math.floor(t) % 60, mm = Math.floor(t / 60);
+    $("hBL").textContent = `00:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}:${String(f % 60).padStart(2, "0")}   60 FPS`;
+    const beat = Math.max(0, Math.floor((t - B(0)) / PERIOD)), bar = Math.floor(beat / 4) + 1;
+    $("hBR").innerHTML = `${[0, 1, 2, 3].map(k => `<i class="${k === beat % 4 ? "on" : ""}"></i>`).join("")}   ${BPM} BPM · BAR ${String(Math.min(bar, BARS)).padStart(2, "0")}/${BARS}`;
+  }
+
+  // ── A: truchet chaos + notifications → snap into order → green wipe → ٤٠ ثانية
   if (scene("A", t, 0, C("problem"))) {
-    const snap = C("snap"), k = io(p(t, snap, snap + .18));
-    const amp = 4 + 22 * p(t, 0, snap) ** 2, st = Math.floor(t * 24);   // seeded camera shake, builds to the snap
+    const snap = C("snap"), wipe = C("wipe"), wk = io(p(t, wipe, wipe + .42));
+    field(COL.teal); hud(wk > .5);
+    if (wk < 1) {
+      ctx.lineWidth = 12; ctx.lineCap = "round";
+      const step = Math.floor(t * 8), fr = t * 8 - step;
+      for (let r = 0; r < TR_; r++) for (let c = 0; c < TC; c++) {
+        const i = r * TC + c, cx = c * TILE + TILE / 2 - 0, cy = r * TILE + TILE / 2 - 30;
+        const o0 = hash(i, step - 1) > .5 ? 1 : 0, o1 = hash(i, step) > .5 ? 1 : 0;
+        let ang = lerp(o0, o1, out(clamp(fr * 4))) * 90;
+        const dist = Math.hypot(cx - 540, cy - 960), ta = snap + dist / 1100 * .45, k = io(p(t, ta, ta + .16));
+        ang = lerp(ang, ((c + r) % 2) * 90, k);
+        let flash = 0;
+        CHAOS.forEach(ch => { const ci = Math.floor(ch.x / TILE) + Math.floor((ch.y + 30) / TILE) * TC; if (ci === i) flash = Math.max(flash, decay(t, ch.appear, .18)); });
+        ctx.strokeStyle = k > .5 || flash > .3 ? COL.green : `rgba(255,255,255,${.28 + .25 * hash(i, 7)})`;
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(ang * Math.PI / 180);
+        ctx.beginPath(); ctx.arc(-45, -45, 45, 0, Math.PI / 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(45, 45, 45, Math.PI, Math.PI * 1.5); ctx.stroke();
+        ctx.restore();
+      }
+    }
+    // shake builds into the snap; notification pills collapse into the centre
+    const amp = 4 + 22 * p(t, 0, snap) ** 2, st = Math.floor(t * 24), kk = io(p(t, snap, snap + .18));
     css($("chaos"), { x: t < snap ? (hash(501, st) - .5) * amp : 0, y: t < snap ? (hash(502, st) - .5) * amp : 0 });
     CHAOS.forEach((c, i) => {
-      const el = chaosEls[i], shown = t >= c.appear && k < 1;
+      const el = chaosEls[i], shown = t >= c.appear && kk < 1;
       el.style.visibility = shown ? "visible" : "hidden";
       if (!shown) return;
-      const s15 = Math.floor(t * 15);
-      const jx = (hash(i, s15) - .5) * 18, jy = (hash(i + 99, s15) - .5) * 18;
-      const pop = 1 + .25 * decay(t, c.appear, .05);
+      const s15 = Math.floor(t * 15), pop = 1 + .25 * decay(t, c.appear, .05);
       const w = el.offsetWidth, h = el.offsetHeight;
-      css(el, { x: lerp(jx, 540 - (c.x + w / 2), k), y: lerp(jy, 960 - (c.y + h / 2), k), sx: pop * (1 - .6 * k), sy: pop * (1 - k), base: `rotate(${c.rot * (1 - k)}deg)` });
+      el.style.transform = `translate(${lerp((hash(i, s15) - .5) * 16, 540 - (c.x + w / 2), kk)}px,${lerp((hash(i + 99, s15) - .5) * 16, 960 - (c.y + h / 2), kk)}px) rotate(${c.rot * (1 - kk)}deg) scale(${pop * (1 - .7 * kk)})`;
     });
-    const drain = 1 - p(t, C("secSub"), C("problem"));                // the 40s "timer" runs out while you read
-    const lw = io(p(t, snap + .08, snap + .26)) * 920 * drain;
-    $("line").style.width = lw + "px";
-    $("line").style.left = t < C("secSub") ? (540 - lw / 2) + "px" : (1000 - lw) + "px";
-    css($("line"), { y: out(p(t, C("n40") - .2, C("n40") + .1)) * 316, sy: 1 + 1.5 * decay(t, snap + .26, .08) });
-    slam($("n40"), t, C("n40"), 1.6);
-    reveal($("sec"), t, C("n40") + .1);
+    // circle wipe to green
+    if (t >= wipe) {
+      const w = $("wipe"); w.style.display = "block"; w.style.background = COL.green;
+      w.style.clipPath = `circle(${wk * 1150}px at 540px 960px)`;
+      if (wk >= 1) field(COL.green);
+    }
+    slam($("n40"), t, C("n40"), { from: -900 });
+    reveal($("sec"), t, C("sec"));
     reveal($("secSub"), t, C("secSub"));
+    const drain = 1 - p(t, C("secSub"), C("problem"));
+    $("timer").style.width = io(p(t, C("sec"), C("sec") + .3)) * 920 * drain + "px";
   }
 
-  // B — problem
-  if (scene("Bp", t, C("problem"), C("study"))) {
-    reveal($("p1"), t, C("problem") - .06);
-    reveal($("p2"), t, C("p2") - .06);
-    slam($("p3"), t, C("p3"), 1.5);
+  // ── P: three hard-cut fields, one phrase each
+  if (scene("P", t, C("problem"), C("study"))) {
+    const cards = [["pc1", "problem", "p2", COL.paper, 1], ["pc2", "p2", "p3", COL.teal, 0], ["pc3", "p3", "study", COL.green, 1]];
+    cards.forEach(([id, a, b]) => cardIn($(id), t, C(a), C(b)));
+    const cur = t >= C("p3") ? 2 : t >= C("p2") ? 1 : 0;
+    field(cur === 0 ? COL.green : cards[cur - 1][3]); hud(cards[cur][4]);
   }
 
-  // C — study: ١٠ سنوات (16th-note ticks landing on the n10 cue)
-  if (scene("C", t, C("study"), C("ring"))) {
-    reveal($("eyebrow"), t, C("study"));
-    reveal($("stTitle"), t, C("study") + .1);
-    const ticks = Array.from({ length: 10 }, (_, k) => C("n10") - (9 - k) * BEAT() / 4);
-    const roll = counter($("n10"), t, ticks, 0, 10);
-    css($("n10"), { y: roll * 80, s: 1 + .08 * decay(t, C("n10"), .18), o: out(p(t, ticks[0] - .1, ticks[0])) * (1 - .3 * roll) });
-    reveal($("n10u"), t, C("n10") - .06);
-    reveal($("n10s"), t, C("n10s") - .1);
+  // ── S1: attention-vs-age chart, marker rewinds 10 years
+  if (scene("S1", t, C("study"), C("dots"))) {
+    field(COL.paper); hud(true);
+    reveal($("s1title"), t, C("study"));
+    css($("s1eye"), { o: out(p(t, C("study"), C("study") + .4)) * .7 });
+    const ink = a => `rgba(11,45,51,${a})`;
+    // axes + ticks
+    const ax = out(p(t, C("study") + .2, C("chart")));
+    ctx.strokeStyle = ink(.35); ctx.lineWidth = 3;
+    const ay = clamp(ax * 2), axx = clamp(ax * 2 - 1);            // y-axis draws down, then x-axis draws across
+    ctx.beginPath(); ctx.moveTo(CH.x0, CH.y0); ctx.lineTo(CH.x0, lerp(CH.y0, CH.y1, ay));
+    if (axx > 0) ctx.lineTo(lerp(CH.x0, CH.x1, axx), CH.y1);
+    ctx.stroke();
+    ctx.fillStyle = ink(.55 * ax); ctx.font = "500 40px 'Baloo Bhaijaan 2'"; ctx.textAlign = "center";
+    for (let a = 20; a <= 70; a += 10) { ctx.fillText(AR(a), ageX(a), CH.y1 + 58); ctx.fillRect(ageX(a) - 1.5, CH.y1, 3, 14); }
+    ctx.font = "700 42px 'Baloo Bhaijaan 2'"; ctx.fillStyle = ink(.8 * ax);
+    ctx.textAlign = "right"; ctx.fillText("العمر", CH.x1, CH.y1 + 118);
+    ctx.save(); ctx.translate(CH.x0 - 40, CH.y0 + 10); ctx.textAlign = "left"; ctx.fillText("الانتباه", 0, 0); ctx.restore();
+    // curve draws on
+    const dk = io(p(t, C("chart"), C("chart", 1.8))), aEnd = lerp(20, 70, dk);
+    ctx.strokeStyle = COL.teal; ctx.lineWidth = 10; ctx.lineCap = "round"; ctx.beginPath();
+    for (let a = 20; a <= aEnd; a += .5) (a === 20 ? ctx.moveTo : ctx.lineTo).call(ctx, ageX(a), attY(a));
+    ctx.stroke();
+    // marker at 55 → rewinds to 45 with ghost trail
+    if (t >= C("marker")) {
+      const mk = out(p(t, C("marker"), C("marker") + .25)), rw = io(p(t, C("rewind"), C("rewind", 1.2)));
+      const age = lerp(55, 45, rw);
+      for (let g = 1; g <= 6; g++) {                         // ghosts (onion-skin of the motion)
+        const ga = lerp(55, 45, io(p(t - g * .05, C("rewind"), C("rewind", 1.2))));
+        if (Math.abs(ga - age) < .05) continue;
+        ctx.strokeStyle = ink(.28 - g * .04); ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(ageX(ga), attY(ga), 26, 0, Math.PI * 2); ctx.stroke();
+      }
+      if (rw > 0) {                                          // the gained span, highlighted on the axis
+        ctx.fillStyle = "rgba(42,244,95,.9)"; ctx.fillRect(ageX(age), CH.y1 - 10, ageX(55) - ageX(age), 20);
+        ctx.setLineDash([10, 12]); ctx.strokeStyle = ink(.35); ctx.lineWidth = 3;
+        for (const a of [age, 55]) { ctx.beginPath(); ctx.moveTo(ageX(a), attY(a)); ctx.lineTo(ageX(a), CH.y1); ctx.stroke(); }
+        ctx.setLineDash([]);
+      }
+      ctx.fillStyle = COL.green; ctx.strokeStyle = COL.teal; ctx.lineWidth = 8;
+      ctx.beginPath(); ctx.arc(ageX(age), attY(age), 30 * mk * (1 + .15 * decay(t, C("rewind", 1.2), .15)), 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      const pk = out(p(t, C("rewind", .9), C("rewind", 1.3)));
+      const pill = $("s1pill"); pill.style.visibility = pk > 0 ? "visible" : "hidden";
+      const px = (ageX(45) + ageX(55)) / 2, py = attY(50) - 190;
+      pill.style.left = px - pill.offsetWidth / 2 + "px"; pill.style.top = py + "px";
+      css(pill, { s: lerp(.6, 1, pk) + .05 * decay(t, C("rewind", 1.3), .15), o: pk });
+    } else $("s1pill").style.visibility = "hidden";
+    reveal($("s1sub"), t, C("n10s"));
   }
 
-  // D — ٩١٪
-  if (scene("D", t, C("ring"), C("product"))) {
-    const f = io(p(t, C("ring"), C("ringFull")));
-    $("arc").style.strokeDasharray = `${ARC * .91 * f} ${ARC}`;
-    $("arc").style.strokeOpacity = f > .005 ? 1 : 0;
-    $("pct").textContent = AR(Math.round(91 * f)) + "٪";
-    css($("pct"), { s: 1 + .08 * decay(t, C("ringFull"), .18) });
-    css($("ring"), { s: lerp(.9, 1, out(p(t, C("ring"), C("ring") + .5))) + .03 * decay(t, C("ringFull"), .2) });
-    reveal($("pctSub"), t, C("ringFull") - .06);
-    [...$("metrics").children].forEach((el, i) => {
-      const k = out(p(t, C("metrics") + i * .1, C("metrics") + i * .1 + .3));
-      css(el, { y: lerp(40, 0, k), o: k });
+  // ── S2: 10×10 dots, 91 light up on a diagonal wave
+  if (scene("S2", t, C("dots"), C("product") - .05)) {
+    field(COL.green); hud(true);
+    const order = [];
+    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) order.push({ r, c, key: (9 - c) + r + hash(r * 10 + c, 3) * .8 });
+    order.sort((a, b) => a.key - b.key);
+    let lit = 0;
+    order.forEach((d, k) => {
+      const x = 540 + (4.5 - d.c) * 78, y = 640 + d.r * 70;
+      const tl = lerp(C("dots"), C("dotsFull"), k / 91), on = k < 91 && t >= tl;
+      if (on) lit++;
+      const pop = on ? 1 + .6 * decay(t, tl, .08) : 1, appear = out(p(t, C("dots") - .2 + k * .002, C("dots") + .2 + k * .002));
+      ctx.beginPath(); ctx.arc(x, y, 25 * pop * appear, 0, Math.PI * 2);
+      if (on) { ctx.fillStyle = COL.teal; ctx.fill(); }
+      else { ctx.strokeStyle = "rgba(11,45,51,.35)"; ctx.lineWidth = 4; ctx.stroke(); }
+    });
+    $("pct").textContent = AR(lit) + "٪";
+    css($("pct"), { s: 1 + .08 * decay(t, C("dotsFull"), .2) });
+    reveal($("dotsLbl"), t, C("dotsLbl"));
+    [...$("metrics").children].forEach((el, i) => { const k = out(p(t, C("metrics") + i * .1, C("metrics") + i * .1 + .3)); css(el, { y: lerp(50, 0, k), o: k }); });
+  }
+
+  // ── PR: teal circle wipe, 14 dots lock into an orbit around the S-mark
+  if (scene("PR", t, C("product") - .05, C("phone"))) {
+    const wk = io(p(t, C("product") - .05, C("product") + .35));
+    field(COL.green); hud(wk < .5);
+    ctx.fillStyle = COL.teal; ctx.beginPath(); ctx.arc(540, 960, wk * 1150, 0, Math.PI * 2); ctx.fill();
+    const lock = io(p(t, C("product"), C("ringLock"))), spin = t * .35;
+    RING.forEach((d, i) => {
+      const a = spin + i / 14 * Math.PI * 2 - Math.PI / 2, rx = 540 + Math.cos(a) * 340, ry = 720 + Math.sin(a) * 340;
+      const x = lerp(d.x, rx, lock), y = lerp(d.y, ry, lock);
+      const tl = C("ringLock") + i * .045, on = t >= tl;
+      ctx.beginPath(); ctx.arc(x, y, (on ? 24 : 16) * (1 + .5 * decay(t, tl, .1)) * wk, 0, Math.PI * 2);
+      ctx.fillStyle = on ? COL.green : "rgba(255,255,255,.4)"; ctx.fill();
+    });
+    ctx.strokeStyle = `rgba(255,255,255,${.12 * lock})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(540, 720, 340, 0, Math.PI * 2); ctx.stroke();
+    const mk = out(p(t, C("ringLock"), C("ringLock") + .4));
+    css($("prMark"), { s: lerp(.5, 1, mk), o: mk, rot: lerp(-30, 0, mk) });
+    slam($("prTitle"), t, C("prTitle"), { from: 900 });
+    reveal($("prSub"), t, C("prSub"));
+  }
+
+  // ── PH: app tiles; blocked ones flip on the beat, allowed ones light up
+  if (scene("PH", t, C("phone"), C("tracker"))) {
+    field(COL.paper); hud(true);
+    reveal($("phTitle"), t, C("phone") - .06);
+    css($("phLegend"), { o: out(p(t, C("allowed"), C("allowed") + .4)) * .6 });
+    tileEls.forEach((el, i) => {
+      const tin = C("phone") + .25 + i * .05, k = out(p(t, tin, tin + .35));
+      if (TILES[i][2] === 0) {
+        const ts = C("strike", i), f = p(t, ts - .08, ts + .22);
+        const flipped = f >= .5;
+        el.children[0].style.visibility = flipped ? "hidden" : "visible";
+        el.children[1].style.visibility = flipped ? "visible" : "hidden";
+        css(el, { y: lerp(60, 0, k), o: k, sy: Math.abs(Math.cos(f * Math.PI)) * (1 + .04 * decay(t, ts + .22, .1)) });
+      } else {
+        const tl = C("allowed") + (i - 4) * .06, lk = out(p(t, tl, tl + .15));
+        const front = el.children[0];
+        front.style.background = lk > .5 ? COL.green : "";
+        front.querySelector(".badge").style.transform = `scale(${lk})`;
+        css(el, { y: lerp(60, 0, k), o: k, s: 1 + .05 * decay(t, tl, .12) });
+      }
     });
   }
 
-  // E — product name, rack focus
-  if (scene("E", t, C("product"), C("phone"))) {
-    slam($("prod1"), t, C("product"), 1.6);
-    $("prod2").style.visibility = "visible";
-    $("prod2").firstElementChild.style.transform = "none";
-    const f = io(p(t, C("rack"), C("sharp")));
-    css($("prod2"), { blur: (1 - f) * 36, s: lerp(1.15, 1, f) + .04 * decay(t, C("sharp"), .15), o: t < C("rack") ? 0 : lerp(.3, 1, f) });
-    line($("pline"), t, C("sharp"), C("sharp") + .3);
-    reveal($("prodSub"), t, C("prodSub"));
-  }
-
-  // F — simple phone: blocked get struck on the beat, allowed light up
-  if (scene("F", t, C("phone"), C("tracker"))) {
-    reveal($("fTitle"), t, C("phone") - .06);
-    const lk = out(p(t, C("phone") + .3, C("phone") + .6));
-    css($("blkLbl"), { o: lk }); css($("okLbl"), { o: lk });
-    blkEls.forEach((el, i) => {
-      const tin = C("phone") + .3 + i * .08, ts = C("strike", i);
-      const k = out(p(t, tin, tin + .3)), x = out(p(t, ts, ts + .16)), fall = io(p(t, ts + .25, ts + .7));
-      el.lastElementChild.style.transform = `scaleX(${x})`;
-      css(el, { y: lerp(30, 0, k) + fall * 60, o: k * lerp(1, .25, fall), s: 1 - .06 * fall });
-    });
-    okEls.forEach((el, i) => {
-      const tin = C("phone") + .5 + i * .08, k = out(p(t, tin, tin + .3));
-      const lt = C("allowed") + i * .06, lit = out(p(t, lt, lt + .15));
-      el.style.background = lit > .5 ? "var(--green)" : "transparent";
-      el.style.color = lit > .5 ? "var(--teal)" : "";
-      css(el, { y: lerp(30, 0, k), o: k, s: 1 + .06 * decay(t, lt, .1) });
-    });
-  }
-
-  // G — tracker: week 1 then week 2, one day per 8th
-  if (scene("G", t, C("tracker"), C("bars"))) {
+  // ── TR: 3D point-grid wave, one column per day
+  if (scene("TR", t, C("tracker"), C("bars"))) {
+    field(COL.teal); hud(false);
     const wk2 = t >= C("week2") - .06;
-    $("gPhase").firstElementChild.textContent = wk2 ? "أسبوع ٢ · البناء" : "أسبوع ١ · القطع";
-    reveal($("gPhase"), t, wk2 ? C("week2") - .06 : C("tracker"));
-    reveal($("gTitle"), t, C("tracker"));
-    reveal($("gSub"), t, C("tracker") + .15);
-    const dayT = i => (i < 7 ? C("tracker", .5) : C("week2")) + (i % 7) * BEAT() / 2;
+    $("trPhase").firstElementChild.textContent = wk2 ? "أسبوع ٢ · البناء" : "أسبوع ١ · القطع";
+    reveal($("trPhase"), t, wk2 ? C("week2") - .06 : C("tracker"));
+    reveal($("trTitle"), t, C("tracker"));
+    reveal($("trSub"), t, C("tracker") + .15);
+    const dayT = i => (i < 7 ? C("week1") : C("week2")) + (i % 7) * BEAT() / 2;
+    const gin = out(p(t, C("tracker"), C("tracker") + .8));
     let filled = 0;
-    dayEls.forEach((el, i) => {
-      const ti = dayT(i), k = out(p(t, ti, ti + .12));
-      if (t >= ti) filled = i + 1;
-      el.firstElementChild.style.transform = `scaleY(${k})`;
-      el.style.color = k > .5 ? "var(--teal)" : "";
-      css(el, { s: 1 + .08 * decay(t, ti, .08) });
-    });
-    $("dayNum").innerHTML = `<span class="u">اليوم</span> ${AR(Math.max(1, filled))}`;
-    css($("dayNum"), { s: 1 + .05 * decay(t, filled ? dayT(filled - 1) : 0, .08) });
+    for (let i = 0; i < 14; i++) if (t >= dayT(i)) filled = i + 1;
+    for (let z = 9; z >= 0; z--) for (let i = 0; i < 14; i++) {
+      const X = 6.5 - i, sc = 1 / (1 + z * .17);
+      const wave = Math.sin(z * .7 - t * 2.4 + X * .35) * 22 * sc;
+      const x = 540 + X * 70 * sc, y = lerp(1760, 700 + 780 * sc, gin) + wave;
+      const on = t >= dayT(i), pop = on ? 1 + .9 * decay(t, dayT(i) + z * .02, .1) : 1;
+      ctx.beginPath(); ctx.arc(x, y, (on ? 9 : 6) * sc * pop + 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = on ? COL.green : `rgba(255,255,255,${.18 + .3 * sc})`; ctx.fill();
+    }
+    ctx.font = "800 40px 'Baloo Bhaijaan 2'"; ctx.textAlign = "center";
+    for (let i = 0; i < 14; i++) { ctx.fillStyle = t >= dayT(i) ? COL.green : "rgba(255,255,255,.4)"; ctx.fillText(AR(i + 1), 540 + (6.5 - i) * 70, 1540 + (1 - gin) * 200); }
+    $("trNum").innerHTML = `<span class="u">اليوم</span> ${AR(Math.max(1, filled))}`;
+    css($("trNum"), { s: 1 + .06 * decay(t, filled ? dayT(filled - 1) : 0, .08), o: gin });
   }
 
-  // H — focus session grows 30 → 90
-  if (scene("H", t, C("bars"), C("results"))) {
-    reveal($("hTitle"), t, C("bars") - .06);
+  // ── FO: focus-session bars 30 → 90 with rolling numbers
+  if (scene("FO", t, C("bars"), C("results"))) {
+    field(COL.green); hud(true);
+    reveal($("foTitle"), t, C("bars") - .06);
     barEls.forEach((el, i) => {
-      const tb = C("bar", i), k = out(p(t, tb - .15, tb + .2));
+      const tb = C("bar", i), k = out(p(t, tb - .18, tb + .25));
       css(el.firstElementChild, { sy: k });
-      css(el.lastElementChild, { y: (1 - k) * 200, o: k });
-      css(el, { s: 1 + .03 * decay(t, tb, .12) });
+      el.lastElementChild.firstElementChild.textContent = AR(Math.round(MINS[i] * k));
+      css(el.lastElementChild, { y: (1 - k) * (MINS[i] / 90 * 920), o: k > 0 ? 1 : 0 });
+      css(el, { s: 1 + .03 * decay(t, tb + .07, .12) });
     });
-    reveal($("hSub"), t, C("hSub") - .1);
+    reveal($("foSub"), t, C("hSub") - .1);
   }
 
-  // I — day 14 before/after
-  if (scene("I", t, C("results"), C("message"))) {
-    reveal($("iEye"), t, C("results") - .06);
-    reveal($("iTitle"), t, C("results") + .06);
+  // ── RE: day 14 before/after rows
+  if (scene("RE", t, C("results"), C("message"))) {
+    field(COL.deep); hud(false);
+    reveal($("reEye"), t, C("results") - .06);
+    reveal($("reTitle"), t, C("results") + .06);
     resEls.forEach((el, i) => {
-      const tr = C("row", i), k = out(p(t, tr - .12, tr + .15));
-      css(el, { x: lerp(-1100, 0, k) });
-      const dir = RESULTS[i][1] === "up" ? -1 : 1, a = out(p(t, tr, tr + .3));
-      css(el.lastElementChild, { y: dir * lerp(40, 0, a), s: 1 + .1 * decay(t, tr, .12) });
+      const tr = C("row", i), k = out(p(t, tr - .18, tr + .02));
+      css(el, { x: lerp(-1100, 0, k), mblur: 80 * (1 - k) });
+      const dir = RESULTS[i][1] === "up" ? -1 : 1, a = out(p(t, tr, tr + .35));
+      css(el.lastElementChild, { y: dir * lerp(60, 0, a), s: 1 + .12 * decay(t, tr, .12) });
     });
   }
 
-  // J — core message
-  if (scene("J", t, C("message"), C("end"))) {
-    reveal($("m1"), t, C("message") - .06);
-    slam($("m2"), t, C("slam"), 1.7);
-    line($("mline"), t, C("slam") + .1, C("end"));
+  // ── ME: the core line, one field per phrase
+  if (scene("ME", t, C("message"), C("end"))) {
+    const cards = [["me1", "message", "m2", COL.teal, 0], ["me2", "m2", "m3", COL.white, 1], ["me3", "m3", "end", COL.green, 1]];
+    cards.forEach(([id, a, b]) => cardIn($(id), t, C(a), C(b)));
+    const cur = t >= C("m3") ? 2 : t >= C("m2") ? 1 : 0;
+    field(cur === 0 ? COL.deep : cards[cur - 1][3]); hud(cards[cur][4]);
   }
 
-  // K — end card
-  if (scene("K", t, C("end"), 1e9)) {
-    css($("grad"), { o: .6 + .4 * out(p(t, C("end"), C("k1"))) });
-    const wk = out(p(t, C("end"), C("end") + .35));
+  // ── EN: logo with particle burst, CTA
+  if (scene("EN", t, C("end"), 1e9)) {
+    field(COL.teal); hud(false);
+    bctx.setTransform(DPR, 0, 0, DPR, 0, 0); bctx.clearRect(0, 0, 1080, 1920);
+    const ox = 90 + 165 * 900 / 1057, oy = 440 + 150 * 254 / 299, age = t - C("flick");
+    if (age > 0) PARTS.forEach(q => {
+      if (age > q.life) return;
+      const k = 3.2, d = q.v * (1 - Math.exp(-k * age)) / k, fade = 1 - age / q.life;
+      const x = ox + Math.cos(q.a) * d, y = oy + Math.sin(q.a) * d + 60 * age * age;
+      bctx.globalAlpha = fade; bctx.fillStyle = bctx.strokeStyle = q.col; bctx.lineWidth = 3;
+      bctx.beginPath();
+      if (q.kind < .5) { bctx.arc(x, y, q.s * .5, 0, Math.PI * 2); bctx.fill(); }
+      else if (q.kind < .75) { bctx.arc(x, y, q.s * .6, 0, Math.PI * 2); bctx.stroke(); }
+      else { bctx.moveTo(x, y - q.s * .6); bctx.lineTo(x + q.s * .55, y + q.s * .4); bctx.lineTo(x - q.s * .55, y + q.s * .4); bctx.closePath(); bctx.fill(); }
+    });
+    bctx.globalAlpha = 1;
+    css($("grad"), { o: .5 + .5 * out(p(t, C("end"), C("k1"))) });
+    const wk = out(p(t, C("end"), C("end") + .4));
     $("logoW").style.clipPath = `inset(0 ${(1 - wk) * 100}% 0 0)`;
     const gk = out(p(t, C("flick") - .1, C("flick") + .15)), flick = Math.sin(p(t, C("flick"), C("flick") + .35) * Math.PI);
-    css($("logoG"), { x: flick * 8, y: lerp(40, 0, gk) - flick * 22, o: gk });
+    css($("logoG"), { x: flick * 10, y: lerp(40, 0, gk) - flick * 26, o: gk });
     reveal($("k1"), t, C("k1") - .06);
     reveal($("k2"), t, C("k1") + .15);
     const bk = out(p(t, C("btn") - .1, C("btn") + .2));
     $("btn").style.clipPath = `inset(0 0 0 ${(1 - bk) * 100}%)`;
     const bar = 4 * BEAT(), lastBar = t > C("final") ? C("final") + Math.floor((t - C("final")) / bar) * bar : C("final");
-    css($("btn"), { s: 1 + .04 * decay(t, C("btn"), .12) + .04 * decay(t, lastBar, .15) });
+    css($("btn"), { s: 1 + .04 * decay(t, C("btn"), .12) + .05 * decay(t, lastBar, .15) });
     reveal($("bio"), t, C("btn") + .3);
     const sk = out(p(t, C("social"), C("social") + .35));
     css($("social"), { x: lerp(-60, 0, sk), o: sk });
@@ -486,30 +651,30 @@ $("play").onclick = () => { if (audio.paused) { audio.play(); $("play").textCont
 $("replay").onclick = () => { audio.currentTime = 0; if (audio.paused) $("play").click(); };
 audio.onended = () => { $("play").textContent = "▶ Play"; };
 
-// needs an http server (fetch): `npx http-server` in this folder, or `node render.mjs`
-Promise.all([fetch("timeline.json").then(r => r.json()), fetch("beats.json").then(r => r.json())])
-  .then(([tl, bj]) => {
-    CUES = tl.cues; PERIOD = 60 / bj.bpm; BEATS = bj.beats;
-    DURATION = tl.beats * 60 / tl.bpm;
-    window.DURATION = DURATION; window.BEATS = BEATS;
-    return Promise.all([document.fonts.load('800 100px "Baloo Bhaijaan 2"'), document.fonts.load('500 100px "Baloo Bhaijaan 2"'),
-      document.fonts.load('700 100px "Baloo Bhaijaan 2"'), ...[...document.images].map(i => i.decode().catch(() => {}))]);
-  })
-  .then(() => { fitText(); seek(0); window.ready = true; });
-
-// shrink any single-line text that is wider than the 920px safe column — once, at load
+// shrink any single-line text wider than its column — once, at load
 function fitText() {
   const scenes = [...document.querySelectorAll(".scene")];
   scenes.forEach(sc => sc.style.display = "block");
-  document.querySelectorAll(".r").forEach(el => {
+  document.querySelectorAll(".scene .r, .scene .c").forEach(el => {
     if (el.querySelector("br")) return;
     const inner = el.classList.contains("mask") ? el.firstElementChild : null;
-    const w = inner ? inner.offsetWidth : el.scrollWidth;
-    const max = el.clientWidth || 920;
-    if (w > max) el.style.fontSize = parseFloat(getComputedStyle(el).fontSize) * max / w * .98 + "px";
+    const w = inner ? inner.offsetWidth : el.scrollWidth, max = el.clientWidth || 920;
+    if (w > max) el.style.fontSize = parseFloat(getComputedStyle(el).fontSize) * max / w * .97 + "px";
   });
   scenes.forEach(sc => sc.style.display = "none");
 }
+
+// needs an http server (fetch): `npx http-server` in this folder, or `node render.mjs`
+Promise.all([fetch("timeline.json").then(r => r.json()), fetch("beats.json").then(r => r.json())])
+  .then(([tl, bj]) => {
+    CUES = tl.cues; PERIOD = 60 / bj.bpm; BPM = Math.round(bj.bpm); BEATS = bj.beats;
+    DURATION = tl.beats * 60 / tl.bpm; BARS = Math.ceil(tl.beats / 4);
+    window.DURATION = DURATION; window.BEATS = BEATS;
+    return Promise.all([document.fonts.load('800 100px "Baloo Bhaijaan 2"'), document.fonts.load('500 100px "Baloo Bhaijaan 2"'),
+      document.fonts.load('700 100px "Baloo Bhaijaan 2"'), document.fonts.load('500 26px "JetBrains Mono"'), document.fonts.load('700 26px "JetBrains Mono"'),
+      ...[...document.images].map(i => i.decode().catch(() => {}))]);
+  })
+  .then(() => { fitText(); seek(0); window.ready = true; });
 </script>
 </body>
 </html>

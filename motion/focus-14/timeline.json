@@ -1,18 +1,18 @@
 {
  "_": "Single source of truth for cue timing. Values are beat indices (fractions allowed). Read by index.html (visuals) and score.py (music/SFX).",
  "bpm": 100,
- "beats": 88,
+ "beats": 90,
  "cues": {
-  "snap": 2, "n40": 3, "secSub": 4,
-  "problem": 9, "p2": 11, "p3": 12,
-  "study": 16, "n10": 19, "n10s": 20.5,
-  "ring": 26, "ringFull": 28, "metrics": 29,
-  "product": 33, "rack": 34, "sharp": 36, "prodSub": 37,
-  "phone": 40, "strike": 42, "allowed": 47,
-  "tracker": 50, "week2": 55,
+  "snap": 2, "wipe": 2.5, "n40": 3, "sec": 3.5, "secSub": 4.5,
+  "problem": 10, "p2": 12, "p3": 14,
+  "study": 17, "chart": 18, "marker": 20, "rewind": 21, "n10s": 22.5,
+  "dots": 26, "dotsFull": 28.5, "dotsLbl": 29, "metrics": 30,
+  "product": 33, "ringLock": 34.5, "prTitle": 35, "prSub": 36.5,
+  "phone": 40, "strike": 42, "allowed": 46.5,
+  "tracker": 50, "week1": 51, "week2": 55,
   "bars": 60, "bar": 61, "hSub": 65,
-  "results": 68, "row": 69,
-  "message": 74, "slam": 76,
-  "end": 79, "flick": 80, "k1": 81, "btn": 82, "social": 83, "final": 84
+  "results": 67, "row": 68,
+  "message": 73, "m2": 75, "m3": 76.5,
+  "end": 80, "flick": 81, "k1": 82, "btn": 83, "social": 84, "final": 85
  }
 }
