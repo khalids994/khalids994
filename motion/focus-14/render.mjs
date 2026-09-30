@@ -57,7 +57,7 @@ if (sheet) {
     await writeFile(path.join(tmp, `b${String(i).padStart(2, "0")}.png`), await shot(t));
   }
   await run(["-y", "-loglevel", "error", "-framerate", "1", "-i", path.join(tmp, "b%02d.png"),
-    "-vf", "scale=270:480,tile=8x5:padding=6:color=black",
+    "-vf", `scale=270:480,tile=8x${Math.ceil(beats.length / 8)}:padding=6:color=black`,
     "-frames:v", "1", path.join(out, "sheet.png")]);
   await rm(tmp, { recursive: true, force: true });
   console.log(`wrote ${path.join(out, "sheet.png")} (${beats.length} beats)`);

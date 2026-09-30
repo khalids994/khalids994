@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SR = 48000
 BPM = 120
 BEAT = 60 / BPM
-DUR = 20.0
+DUR = 30.0
 N = int(SR * DUR)
 FFMPEG = os.environ.get("FFMPEG", "ffmpeg")
 
@@ -162,65 +162,91 @@ def hz(midi):
 HIJAZ = [62, 63, 66, 67, 69, 70, 72, 74, 75, 78, 79, 81, 82, 84]  # 14 notes, one per day
 
 # ── arrangement (beat indices mirror index.html)
-# Act 1 — chaos 0..B2: notification pings at each word's appear time, rising swell
-for i, a in enumerate(chaos_times()):
-    place(ping(1500 + (i % 5) * 180), a, 0.9, pan=((i * 37) % 11 - 5) / 6)
-place(riser(B(2)), 0, 0.6)
-place(impact(), B(2), 1.1)                       # SNAP: chaos collapses to the focus line
-place(crash(), B(2), 0.5)
-place(impact(1.2, 0.5), B(3))                    # "مشتّت؟"
-
-# Act 2 — groove B4..B28
-def groove(b0, b1, claps=True, hats=True):
+def groove(b0, b1, claps=True, hats=True, kicks=True):
     for b in range(b0, b1):
-        place(kick(), B(b), 0.95)
+        if kicks:
+            place(kick(), B(b), 0.95)
         if claps and b % 2 == 1:
             place(clap(), B(b), 0.55, pan=0.1)
         if hats:
             place(hat(), B(b) + BEAT / 2, 0.35, pan=-0.3)
 
-groove(4, 28)
-CHORDS = {4: [62, 66, 69], 8: [63, 67, 70], 12: [62, 66, 69], 16: [60, 63, 67], 20: [62, 66, 69], 24: [63, 67, 70]}
-for b, notes in CHORDS.items():
-    place(pad([hz(n) for n in notes], 4 * BEAT), B(b), 1.0)
-    for k in range(4):
-        env_d = BEAT * 0.85
-        place(bass(hz(notes[0] - 24), env_d), B(b + k) + 0.06, 0.9)
+def chords(b0, b1, gain=1.0, with_bass=True):
+    prog = [[62, 66, 69], [63, 67, 70], [60, 63, 67], [62, 66, 69]]   # Hijaz: I – bII – iv – I
+    for n, b in enumerate(range(b0, b1, 4)):
+        notes = prog[n % 4]
+        d = min(4, b1 - b) * BEAT
+        place(pad([hz(m) for m in notes], d), B(b), gain)
+        if with_bass:
+            for k in range(int(d / BEAT)):
+                place(bass(hz(notes[0] - 24), BEAT * .85), B(b + k) + 0.06, 0.9)
 
-for k in range(13):                               # counter ticks ١ -> ١٤ (16ths from B5)
-    place(tick(1100 + k * 55), B(5) + k * BEAT / 4, 0.8)
-place(crash(), B(8), 0.6)                         # ١٤ lands
-place(riser(BEAT), B(10), 0.5)                    # rack focus
-place(impact(0.8, 0.6), B(11))
-for i, m in enumerate(HIJAZ):                     # tracker: one pluck per day
-    place(pluck(hz(m)), B(12) + i * BEAT / 2, 0.8, pan=(i - 6.5) / 10)
-place(pad([hz(n) for n in (74, 78, 81)], 1.2, 0.2), B(19), 1.0)
-place(crash(), B(19), 0.5)
-for k in range(4):                                # habits: whoosh into a hit on each card
-    place(whoosh(), B(20 + 2 * k) - 0.26, 0.9)
-    place(impact(0.6, 0.5), B(20 + 2 * k))
+# A — hook: notification pings at each word's appear time, swell, SNAP, ٤٠ lands
+for i, a in enumerate(chaos_times()):
+    place(ping(1500 + (i % 5) * 180), a, 0.9, pan=((i * 37) % 11 - 5) / 6)
+place(riser(B(2)), 0, 0.6)
+place(impact(), B(2), 1.1)
+place(crash(), B(2), 0.5)
+place(impact(1.2, 0.8), B(3))                       # ٤٠
+place(pad([hz(n) for n in (50, 57)], 3.5 * BEAT, 0.12), B(3), 1.0)   # low drone under the stat
+place(pluck(hz(69)), B(4), 0.5)
 
-# Act 3 — statement B28..B32: drums drop, a kick per word, snare roll into the logo
-for b in (28, 29, 30):
-    place(kick(), B(b), 1.0)
-    place(pluck(hz(62 + (b - 28) * 4), 1.2), B(b), 0.6)
+# B — problem: sparse, a kick per line, slam on "ما تكفي"
+place(kick(), B(6), 0.9); place(pluck(hz(62), 1.2), B(6), 0.5)
+place(kick(), B(8), 0.9); place(pluck(hz(63), 1.2), B(8), 0.5)
+place(riser(BEAT), B(8), 0.4)
+place(impact(0.9, 0.8), B(9))
+place(pad([hz(n) for n in (50, 57, 63)], 2 * BEAT, 0.12), B(8), 1.0)
+
+# C–I — groove under the study, the product and the program
+groove(10, 46)
+chords(10, 46)
+for k in range(10):                                  # ١٠ سنوات counter, 16ths landing on B14
+    place(tick(1100 + k * 60), B(14) - (9 - k) * BEAT / 4, 0.8)
+place(crash(), B(14), 0.55)
+place(riser(2 * BEAT), B(16), 0.45)                  # ٩١٪ ring fills
+place(impact(0.9, 0.7), B(18)); place(crash(), B(18), 0.45)
+for i in range(3):
+    place(pluck(hz(74 + i * 4)), B(19) + i * .08, 0.4)
+place(impact(1.2, 1.0), B(20)); place(crash(), B(20), 0.6)   # تحدي ١٤ يوم
+place(riser(2 * BEAT), B(21), 0.5)                   # rack focus
+place(impact(0.8, 0.6), B(23))
+for i in range(4):                                   # blocked apps struck, one per beat
+    place(whoosh(0.2), B(27 + i) - 0.02, 0.6)
+    place(impact(0.4, 0.45), B(27 + i) + .05)
+for i, m in enumerate((74, 78, 81, 86, 90, 93)):     # allowed apps light up
+    place(pluck(hz(m), 0.6), B(31) + i * .05, 0.35)
+for i, m in enumerate(HIJAZ):                        # tracker: one pluck per day, week 2 from B36
+    place(pluck(hz(m)), (B(32) if i < 7 else B(36)) + (i % 7) * BEAT / 2, 0.8, pan=(i - 6.5) / 10)
+place(crash(), B(36), 0.45)
+for i, m in enumerate((62, 66, 69, 74)):             # focus bars 30 → 90
+    place(pad([hz(m), hz(m + 7)], 0.5, 0.25), B(41 + i), 1.0)
+    place(impact(0.5, 0.35 + i * .1), B(41 + i))
+place(crash(), B(44), 0.5)
+place(impact(0.8, 0.8), B(46))                       # day 14
+for i in range(3):
+    place(whoosh(0.2), B(47 + i) - 0.14, 0.5)
+    place(bell(hz(81 + i * 2), 0.8), B(47 + i), 0.35)
+
+# J — core message: drums drop, kick on "أسبوعين…", roll into the slam
+place(kick(), B(50), 1.0)
+place(pad([hz(n) for n in (62, 66, 69)], 4 * BEAT, 0.14), B(50), 1.0)
 for k in range(8):
-    place(clap(), B(30) + k * BEAT / 4, 0.2 + 0.06 * k)
-place(riser(2 * BEAT), B(30), 0.7)
-place(pad([hz(n) for n in (62, 66, 69)], 1.0, 0.1), B(28), 1.0)
+    place(clap(), B(51) + k * BEAT / 8, 0.12 + 0.05 * k)
+place(riser(BEAT), B(51), 0.6)
+place(impact(1.4, 1.2), B(52)); place(crash(2.0), B(52), 0.6)
 
-# Act 4 — end card B32..B40
-place(impact(1.6, 1.2), B(32))
-place(crash(2.2), B(32), 0.6)
-place(zip_up(), B(33) - 0.08, 1.0)                # the arrow in the S flicks up
-place(bell(hz(86)), B(33), 0.9)
-groove(34, 38, claps=False)
-place(pad([hz(n) for n in (62, 66, 69, 74)], 6 * BEAT, 0.12), B(34), 1.0)
-place(impact(0.7, 0.6), B(36))                    # CTA button
-for k, m in enumerate((74, 78, 81)):              # social row
-    place(pluck(hz(m)), B(37) + k * 0.08, 0.5)
-place(impact(1.2, 0.9), B(38))
-place(bell(hz(74), 2.0), B(38), 0.8)
+# K — end card
+place(impact(1.6, 1.1), B(54))
+place(zip_up(), B(55) - 0.08, 1.0)                   # the arrow in the S flicks up
+place(bell(hz(86)), B(55), 0.9)
+groove(56, 58, claps=False)
+place(pad([hz(n) for n in (62, 66, 69, 74)], 6 * BEAT, 0.12), B(54), 1.0)
+place(impact(0.7, 0.6), B(57))                       # CTA button
+for k, m in enumerate((74, 78, 81)):                 # social row
+    place(pluck(hz(m)), B(58) + k * 0.08, 0.5)
+place(impact(1.2, 0.9), B(58))
+place(bell(hz(74), 2.0), B(58), 0.8)
 
 # ── mix bus: reverb send, low-cut, gentle saturation, fade tail
 ir_t = tt(0.9)
