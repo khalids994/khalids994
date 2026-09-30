@@ -15,14 +15,19 @@ from scipy.signal import butter, sosfilt, fftconvolve
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SR = 48000
-BPM = 120
+TL = json.load(open(os.path.join(HERE, "timeline.json")))
+BPM = TL["bpm"]
 BEAT = 60 / BPM
-DUR = 30.0
+DUR = TL["beats"] * BEAT
 N = int(SR * DUR)
 FFMPEG = os.environ.get("FFMPEG", "ffmpeg")
 
 def B(i):
     return i * BEAT
+
+def C(name, plus=0):
+    """cue time in seconds (timeline.json is shared with index.html)"""
+    return B(TL["cues"][name] + plus)
 
 # ── seeded randomness (identical to the JS mulberry32 in index.html)
 def mulberry32(a):
@@ -184,69 +189,77 @@ def chords(b0, b1, gain=1.0, with_bass=True):
 # A — hook: notification pings at each word's appear time, swell, SNAP, ٤٠ lands
 for i, a in enumerate(chaos_times()):
     place(ping(1500 + (i % 5) * 180), a, 0.9, pan=((i * 37) % 11 - 5) / 6)
-place(riser(B(2)), 0, 0.6)
-place(impact(), B(2), 1.1)
-place(crash(), B(2), 0.5)
-place(impact(1.2, 0.8), B(3))                       # ٤٠
-place(pad([hz(n) for n in (50, 57)], 3.5 * BEAT, 0.12), B(3), 1.0)   # low drone under the stat
-place(pluck(hz(69)), B(4), 0.5)
+place(riser(C("snap")), 0, 0.6)
+place(impact(), C("snap"), 1.1)
+place(crash(), C("snap"), 0.5)
+place(impact(1.2, 0.8), C("n40"))
+place(pad([hz(n) for n in (50, 57)], C("problem") - C("n40"), 0.12), C("n40"), 1.0)   # low drone under the stat
+place(pluck(hz(69)), C("secSub"), 0.5)
 
 # B — problem: sparse, a kick per line, slam on "ما تكفي"
-place(kick(), B(6), 0.9); place(pluck(hz(62), 1.2), B(6), 0.5)
-place(kick(), B(8), 0.9); place(pluck(hz(63), 1.2), B(8), 0.5)
-place(riser(BEAT), B(8), 0.4)
-place(impact(0.9, 0.8), B(9))
-place(pad([hz(n) for n in (50, 57, 63)], 2 * BEAT, 0.12), B(8), 1.0)
+place(kick(), C("problem"), 0.9); place(pluck(hz(62), 1.2), C("problem"), 0.5)
+place(kick(), C("p2"), 0.9); place(pluck(hz(63), 1.2), C("p2"), 0.5)
+place(riser(BEAT), C("p2"), 0.4)
+place(impact(0.9, 0.8), C("p3"))
+place(pad([hz(n) for n in (50, 57, 63)], C("study") - C("problem"), 0.1), C("problem"), 1.0)
 
 # C–I — groove under the study, the product and the program
-groove(10, 46)
-chords(10, 46)
-for k in range(10):                                  # ١٠ سنوات counter, 16ths landing on B14
-    place(tick(1100 + k * 60), B(14) - (9 - k) * BEAT / 4, 0.8)
-place(crash(), B(14), 0.55)
-place(riser(2 * BEAT), B(16), 0.45)                  # ٩١٪ ring fills
-place(impact(0.9, 0.7), B(18)); place(crash(), B(18), 0.45)
+b0, b1 = TL["cues"]["study"], TL["cues"]["message"]
+groove(b0, b1)
+chords(b0, b1)
+for k in range(10):                                  # ١٠ سنوات counter, 16ths landing on the cue
+    place(tick(1100 + k * 60), C("n10") - (9 - k) * BEAT / 4, 0.8)
+place(crash(), C("n10"), 0.55)
+place(pluck(hz(74)), C("n10s"), 0.4)
+place(riser(C("ringFull") - C("ring")), C("ring"), 0.45)   # ٩١٪ ring fills
+place(impact(0.9, 0.7), C("ringFull")); place(crash(), C("ringFull"), 0.45)
 for i in range(3):
-    place(pluck(hz(74 + i * 4)), B(19) + i * .08, 0.4)
-place(impact(1.2, 1.0), B(20)); place(crash(), B(20), 0.6)   # تحدي ١٤ يوم
-place(riser(2 * BEAT), B(21), 0.5)                   # rack focus
-place(impact(0.8, 0.6), B(23))
+    place(pluck(hz(74 + i * 4)), C("metrics") + i * .1, 0.4)
+place(impact(1.2, 1.0), C("product")); place(crash(), C("product"), 0.6)   # تحدي ١٤ يوم
+place(riser(C("sharp") - C("rack")), C("rack"), 0.5)                       # rack focus
+place(impact(0.8, 0.6), C("sharp"))
+place(pluck(hz(69)), C("prodSub"), 0.4)
 for i in range(4):                                   # blocked apps struck, one per beat
-    place(whoosh(0.2), B(27 + i) - 0.02, 0.6)
-    place(impact(0.4, 0.45), B(27 + i) + .05)
+    place(whoosh(0.2), C("strike", i) - 0.02, 0.6)
+    place(impact(0.4, 0.45), C("strike", i) + .05)
 for i, m in enumerate((74, 78, 81, 86, 90, 93)):     # allowed apps light up
-    place(pluck(hz(m), 0.6), B(31) + i * .05, 0.35)
-for i, m in enumerate(HIJAZ):                        # tracker: one pluck per day, week 2 from B36
-    place(pluck(hz(m)), (B(32) if i < 7 else B(36)) + (i % 7) * BEAT / 2, 0.8, pan=(i - 6.5) / 10)
-place(crash(), B(36), 0.45)
+    place(pluck(hz(m), 0.6), C("allowed") + i * .06, 0.35)
+HIJAZ = [62, 63, 66, 67, 69, 70, 72, 74, 75, 78, 79, 81, 82, 84]
+for i, m in enumerate(HIJAZ):                        # tracker: one pluck per day
+    t0 = (C("tracker", .5) if i < 7 else C("week2")) + (i % 7) * BEAT / 2
+    place(pluck(hz(m)), t0, 0.8, pan=(i - 6.5) / 10)
+place(crash(), C("week2"), 0.45)
 for i, m in enumerate((62, 66, 69, 74)):             # focus bars 30 → 90
-    place(pad([hz(m), hz(m + 7)], 0.5, 0.25), B(41 + i), 1.0)
-    place(impact(0.5, 0.35 + i * .1), B(41 + i))
-place(crash(), B(44), 0.5)
-place(impact(0.8, 0.8), B(46))                       # day 14
+    place(pad([hz(m), hz(m + 7)], 0.6, 0.25), C("bar", i), 1.0)
+    place(impact(0.5, 0.35 + i * .1), C("bar", i))
+place(crash(), C("bar", 3), 0.5)
+place(pluck(hz(81)), C("hSub"), 0.4)
+place(impact(0.8, 0.8), C("results"))                # day 14
 for i in range(3):
-    place(whoosh(0.2), B(47 + i) - 0.14, 0.5)
-    place(bell(hz(81 + i * 2), 0.8), B(47 + i), 0.35)
+    place(whoosh(0.2), C("row", i) - 0.14, 0.5)
+    place(bell(hz(81 + i * 2), 0.8), C("row", i), 0.35)
 
 # J — core message: drums drop, kick on "أسبوعين…", roll into the slam
-place(kick(), B(50), 1.0)
-place(pad([hz(n) for n in (62, 66, 69)], 4 * BEAT, 0.14), B(50), 1.0)
+place(kick(), C("message"), 1.0)
+place(pad([hz(n) for n in (62, 66, 69)], C("end") - C("message"), 0.14), C("message"), 1.0)
+roll_len = C("slam") - C("message", 1)
 for k in range(8):
-    place(clap(), B(51) + k * BEAT / 8, 0.12 + 0.05 * k)
-place(riser(BEAT), B(51), 0.6)
-place(impact(1.4, 1.2), B(52)); place(crash(2.0), B(52), 0.6)
+    place(clap(), C("message", 1) + k * roll_len / 8, 0.12 + 0.05 * k)
+place(riser(roll_len), C("message", 1), 0.6)
+place(impact(1.4, 1.2), C("slam")); place(crash(2.0), C("slam"), 0.6)
 
 # K — end card
-place(impact(1.6, 1.1), B(54))
-place(zip_up(), B(55) - 0.08, 1.0)                   # the arrow in the S flicks up
-place(bell(hz(86)), B(55), 0.9)
-groove(56, 58, claps=False)
-place(pad([hz(n) for n in (62, 66, 69, 74)], 6 * BEAT, 0.12), B(54), 1.0)
-place(impact(0.7, 0.6), B(57))                       # CTA button
+place(impact(1.6, 1.1), C("end"))
+place(zip_up(), C("flick") - 0.08, 1.0)              # the arrow in the S flicks up
+place(bell(hz(86)), C("flick"), 0.9)
+groove(TL["cues"]["k1"], TL["cues"]["final"], claps=False)
+place(pad([hz(n) for n in (62, 66, 69, 74)], DUR - C("end"), 0.12), C("end"), 1.0)
+place(pluck(hz(74)), C("k1"), 0.4)
+place(impact(0.7, 0.6), C("btn"))                    # CTA button
 for k, m in enumerate((74, 78, 81)):                 # social row
-    place(pluck(hz(m)), B(58) + k * 0.08, 0.5)
-place(impact(1.2, 0.9), B(58))
-place(bell(hz(74), 2.0), B(58), 0.8)
+    place(pluck(hz(m)), C("social") + k * 0.08, 0.5)
+place(impact(1.2, 0.9), C("final"))
+place(bell(hz(74), 2.0), C("final"), 0.8)
 
 # ── mix bus: reverb send, low-cut, gentle saturation, fade tail
 ir_t = tt(0.9)

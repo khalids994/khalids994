@@ -227,10 +227,15 @@ const decay = (t, t0, len) => t < t0 ? 0 : Math.exp(-(t - t0) / len);   // beat-
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const hash = (i, n) => mulberry32(i * 7919 + n * 104729 + 1)();    // seeded per-(item, step) noise
 
-let BEATS = null;  // measured grid from beats.json, set once at load
-const B = i => BEATS[Math.min(i, BEATS.length - 1)] + Math.max(0, i - BEATS.length + 1) * .5;
-const BEAT = () => B(1) - B(0);
-const DURATION = 30;
+// Timing: cue beat indices come from timeline.json, beat times from the measured beats.json. Set once at load.
+let BEATS = null, CUES = null, DURATION = 0, PERIOD = .6;
+const B = i => {                                   // beat index (fractional ok) → seconds on the measured grid
+  const k = Math.floor(i), f = i - k, n = BEATS.length;
+  const at = j => j < n ? BEATS[j] : BEATS[n - 1] + (j - n + 1) * PERIOD;
+  return at(k) + f * PERIOD;
+};
+const BEAT = () => PERIOD;
+const C = (name, plus = 0) => B(CUES[name] + plus);  // cue time, optionally + beats
 
 function css(el, { x = 0, y = 0, s = 1, sx = s, sy = s, o = 1, blur = 0, base = "" }) {
   el.style.transform = `${base} translate(${x}px,${y}px) scale(${sx},${sy})`;
@@ -257,7 +262,13 @@ function counter(el, t, ticks, from, to) {
   return roll;
 }
 const line = (el, t, a, b, w = 920) => { el.style.width = io(p(t, a, b)) * w + "px"; };
-const scene = (id, t, a, b) => { const on = t >= a && t < b; $(id).style.display = on ? "block" : "none"; return on; };
+// scene toggle + a slow 3% push-in across the scene so held frames keep breathing
+const scene = (id, t, a, b) => {
+  const on = t >= a && t < b, el = $(id);
+  el.style.display = on ? "block" : "none";
+  if (on) el.style.transform = `scale(${1 + .03 * p(t, a, Math.min(b, a + 8))})`;
+  return on;
+};
 const ICON = {
   check: '<path d="M20 6 9 17l-5-5"/>',
   down: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
@@ -295,9 +306,9 @@ const resEls = [...$("rows").children];
 const ARC = 2 * Math.PI * 44;
 
 function seek(t) {
-  // A — hook: chaos → snap to the focus line → ٤٠ ثانية   [0, B6)
-  if (scene("A", t, 0, B(6))) {
-    const snap = B(2), k = io(p(t, snap, snap + .18));
+  // A — hook: chaos → snap to the focus line → ٤٠ ثانية
+  if (scene("A", t, 0, C("problem"))) {
+    const snap = C("snap"), k = io(p(t, snap, snap + .18));
     const amp = 4 + 22 * p(t, 0, snap) ** 2, st = Math.floor(t * 24);   // seeded camera shake, builds to the snap
     css($("chaos"), { x: t < snap ? (hash(501, st) - .5) * amp : 0, y: t < snap ? (hash(502, st) - .5) * amp : 0 });
     CHAOS.forEach((c, i) => {
@@ -310,151 +321,151 @@ function seek(t) {
       const w = el.offsetWidth, h = el.offsetHeight;
       css(el, { x: lerp(jx, 540 - (c.x + w / 2), k), y: lerp(jy, 960 - (c.y + h / 2), k), sx: pop * (1 - .6 * k), sy: pop * (1 - k), base: `rotate(${c.rot * (1 - k)}deg)` });
     });
-    const lw = io(p(t, snap + .08, snap + .26)) * 920;
+    const drain = 1 - p(t, C("secSub"), C("problem"));                // the 40s "timer" runs out while you read
+    const lw = io(p(t, snap + .08, snap + .26)) * 920 * drain;
     $("line").style.width = lw + "px";
-    $("line").style.left = (540 - lw / 2) + "px";
-    css($("line"), { y: out(p(t, B(3) - .2, B(3) + .1)) * 316, sy: 1 + 1.5 * decay(t, snap + .26, .08), o: 1 - p(t, B(5), B(5) + .3) });
-    slam($("n40"), t, B(3), 1.6);
-    reveal($("sec"), t, B(3) + .1);
-    reveal($("secSub"), t, B(4));
+    $("line").style.left = t < C("secSub") ? (540 - lw / 2) + "px" : (1000 - lw) + "px";
+    css($("line"), { y: out(p(t, C("n40") - .2, C("n40") + .1)) * 316, sy: 1 + 1.5 * decay(t, snap + .26, .08) });
+    slam($("n40"), t, C("n40"), 1.6);
+    reveal($("sec"), t, C("n40") + .1);
+    reveal($("secSub"), t, C("secSub"));
   }
 
-  // B — problem   [B6, B10)
-  if (scene("Bp", t, B(6), B(10))) {
-    reveal($("p1"), t, B(6) - .06);
-    reveal($("p2"), t, B(8) - .06);
-    slam($("p3"), t, B(9), 1.5);
+  // B — problem
+  if (scene("Bp", t, C("problem"), C("study"))) {
+    reveal($("p1"), t, C("problem") - .06);
+    reveal($("p2"), t, C("p2") - .06);
+    slam($("p3"), t, C("p3"), 1.5);
   }
 
-  // C — study: ١٠ سنوات   [B10, B16)
-  if (scene("C", t, B(10), B(16))) {
-    reveal($("eyebrow"), t, B(10));
-    reveal($("stTitle"), t, B(10) + .1);
-    const ticks = Array.from({ length: 10 }, (_, k) => B(14) - (9 - k) * BEAT() / 4);   // 16ths landing on B14
+  // C — study: ١٠ سنوات (16th-note ticks landing on the n10 cue)
+  if (scene("C", t, C("study"), C("ring"))) {
+    reveal($("eyebrow"), t, C("study"));
+    reveal($("stTitle"), t, C("study") + .1);
+    const ticks = Array.from({ length: 10 }, (_, k) => C("n10") - (9 - k) * BEAT() / 4);
     const roll = counter($("n10"), t, ticks, 0, 10);
-    css($("n10"), { y: roll * 80, s: 1 + .08 * decay(t, B(14), .18), o: out(p(t, ticks[0] - .1, ticks[0])) * (1 - .3 * roll) });
-    reveal($("n10u"), t, B(14) - .06);
-    reveal($("n10s"), t, B(15) - .1);
+    css($("n10"), { y: roll * 80, s: 1 + .08 * decay(t, C("n10"), .18), o: out(p(t, ticks[0] - .1, ticks[0])) * (1 - .3 * roll) });
+    reveal($("n10u"), t, C("n10") - .06);
+    reveal($("n10s"), t, C("n10s") - .1);
   }
 
-  // D — ٩١٪   [B16, B20)
-  if (scene("D", t, B(16), B(20))) {
-    const f = io(p(t, B(16), B(18)));
+  // D — ٩١٪
+  if (scene("D", t, C("ring"), C("product"))) {
+    const f = io(p(t, C("ring"), C("ringFull")));
     $("arc").style.strokeDasharray = `${ARC * .91 * f} ${ARC}`;
     $("arc").style.strokeOpacity = f > .005 ? 1 : 0;
     $("pct").textContent = AR(Math.round(91 * f)) + "٪";
-    css($("pct"), { s: 1 + .08 * decay(t, B(18), .18) });
-    css($("ring"), { s: lerp(.9, 1, out(p(t, B(16), B(16) + .5))) + .03 * decay(t, B(18), .2) });
-    reveal($("pctSub"), t, B(18) - .06);
+    css($("pct"), { s: 1 + .08 * decay(t, C("ringFull"), .18) });
+    css($("ring"), { s: lerp(.9, 1, out(p(t, C("ring"), C("ring") + .5))) + .03 * decay(t, C("ringFull"), .2) });
+    reveal($("pctSub"), t, C("ringFull") - .06);
     [...$("metrics").children].forEach((el, i) => {
-      const k = out(p(t, B(19) + i * .08, B(19) + i * .08 + .3));
+      const k = out(p(t, C("metrics") + i * .1, C("metrics") + i * .1 + .3));
       css(el, { y: lerp(40, 0, k), o: k });
     });
   }
 
-  // E — product name, rack focus   [B20, B26)
-  if (scene("E", t, B(20), B(26))) {
-    slam($("prod1"), t, B(20), 1.6);
+  // E — product name, rack focus
+  if (scene("E", t, C("product"), C("phone"))) {
+    slam($("prod1"), t, C("product"), 1.6);
     $("prod2").style.visibility = "visible";
     $("prod2").firstElementChild.style.transform = "none";
-    const f = io(p(t, B(21), B(23)));
-    css($("prod2"), { blur: (1 - f) * 36, s: lerp(1.15, 1, f) + .04 * decay(t, B(23), .15), o: t < B(21) ? 0 : lerp(.3, 1, f) });
-    line($("pline"), t, B(23), B(23) + .3);
-    reveal($("prodSub"), t, B(24));
+    const f = io(p(t, C("rack"), C("sharp")));
+    css($("prod2"), { blur: (1 - f) * 36, s: lerp(1.15, 1, f) + .04 * decay(t, C("sharp"), .15), o: t < C("rack") ? 0 : lerp(.3, 1, f) });
+    line($("pline"), t, C("sharp"), C("sharp") + .3);
+    reveal($("prodSub"), t, C("prodSub"));
   }
 
-  // F — simple phone: blocked get struck on the beat, allowed light up   [B26, B32)
-  if (scene("F", t, B(26), B(32))) {
-    reveal($("fTitle"), t, B(26) - .06);
-    const lk = out(p(t, B(26) + .2, B(26) + .5));
+  // F — simple phone: blocked get struck on the beat, allowed light up
+  if (scene("F", t, C("phone"), C("tracker"))) {
+    reveal($("fTitle"), t, C("phone") - .06);
+    const lk = out(p(t, C("phone") + .3, C("phone") + .6));
     css($("blkLbl"), { o: lk }); css($("okLbl"), { o: lk });
     blkEls.forEach((el, i) => {
-      const tin = B(26) + .2 + i * .06, ts = B(27 + i);
-      const k = out(p(t, tin, tin + .3)), x = out(p(t, ts, ts + .16)), fall = io(p(t, ts + .2, ts + .6));
+      const tin = C("phone") + .3 + i * .08, ts = C("strike", i);
+      const k = out(p(t, tin, tin + .3)), x = out(p(t, ts, ts + .16)), fall = io(p(t, ts + .25, ts + .7));
       el.lastElementChild.style.transform = `scaleX(${x})`;
       css(el, { y: lerp(30, 0, k) + fall * 60, o: k * lerp(1, .25, fall), s: 1 - .06 * fall });
     });
     okEls.forEach((el, i) => {
-      const tin = B(26) + .35 + i * .06, k = out(p(t, tin, tin + .3));
-      const lit = out(p(t, B(31) + i * .05, B(31) + i * .05 + .15));
+      const tin = C("phone") + .5 + i * .08, k = out(p(t, tin, tin + .3));
+      const lt = C("allowed") + i * .06, lit = out(p(t, lt, lt + .15));
       el.style.background = lit > .5 ? "var(--green)" : "transparent";
       el.style.color = lit > .5 ? "var(--teal)" : "";
-      css(el, { y: lerp(30, 0, k), o: k, s: 1 + .06 * decay(t, B(31) + i * .05, .1) });
+      css(el, { y: lerp(30, 0, k), o: k, s: 1 + .06 * decay(t, lt, .1) });
     });
   }
 
-  // G — tracker: week 1 then week 2, one day per 8th   [B32, B40)
-  if (scene("G", t, B(32), B(40))) {
-    const wk2 = t >= B(36);
-    const ph = $("gPhase").firstElementChild;
-    ph.textContent = wk2 ? "أسبوع ٢ · البناء" : "أسبوع ١ · القطع";
-    reveal($("gPhase"), t, wk2 ? B(36) - .06 : B(32));
-    reveal($("gTitle"), t, B(32));
-    reveal($("gSub"), t, B(32) + .12);
+  // G — tracker: week 1 then week 2, one day per 8th
+  if (scene("G", t, C("tracker"), C("bars"))) {
+    const wk2 = t >= C("week2") - .06;
+    $("gPhase").firstElementChild.textContent = wk2 ? "أسبوع ٢ · البناء" : "أسبوع ١ · القطع";
+    reveal($("gPhase"), t, wk2 ? C("week2") - .06 : C("tracker"));
+    reveal($("gTitle"), t, C("tracker"));
+    reveal($("gSub"), t, C("tracker") + .15);
+    const dayT = i => (i < 7 ? C("tracker", .5) : C("week2")) + (i % 7) * BEAT() / 2;
     let filled = 0;
     dayEls.forEach((el, i) => {
-      const ti = (i < 7 ? B(32) : B(36)) + (i % 7) * BEAT() / 2, k = out(p(t, ti, ti + .12));
+      const ti = dayT(i), k = out(p(t, ti, ti + .12));
       if (t >= ti) filled = i + 1;
       el.firstElementChild.style.transform = `scaleY(${k})`;
       el.style.color = k > .5 ? "var(--teal)" : "";
       css(el, { s: 1 + .08 * decay(t, ti, .08) });
     });
     $("dayNum").innerHTML = `<span class="u">اليوم</span> ${AR(Math.max(1, filled))}`;
-    const lastFill = filled ? (filled <= 7 ? B(32) : B(36)) + ((filled - 1) % 7) * BEAT() / 2 : 0;
-    css($("dayNum"), { s: 1 + .05 * decay(t, lastFill, .08) });
+    css($("dayNum"), { s: 1 + .05 * decay(t, filled ? dayT(filled - 1) : 0, .08) });
   }
 
-  // H — focus session grows 30 → 90   [B40, B46)
-  if (scene("H", t, B(40), B(46))) {
-    reveal($("hTitle"), t, B(40) - .06);
+  // H — focus session grows 30 → 90
+  if (scene("H", t, C("bars"), C("results"))) {
+    reveal($("hTitle"), t, C("bars") - .06);
     barEls.forEach((el, i) => {
-      const ti = B(41 + i) - .15, k = out(p(t, ti, ti + .3));
+      const tb = C("bar", i), k = out(p(t, tb - .15, tb + .2));
       css(el.firstElementChild, { sy: k });
       css(el.lastElementChild, { y: (1 - k) * 200, o: k });
-      css(el, { s: 1 + .03 * decay(t, B(41 + i), .12) });
+      css(el, { s: 1 + .03 * decay(t, tb, .12) });
     });
-    reveal($("hSub"), t, B(45) - .1);
+    reveal($("hSub"), t, C("hSub") - .1);
   }
 
-  // I — day 14 before/after   [B46, B50)
-  if (scene("I", t, B(46), B(50))) {
-    reveal($("iEye"), t, B(46) - .06);
-    reveal($("iTitle"), t, B(46) + .06);
+  // I — day 14 before/after
+  if (scene("I", t, C("results"), C("message"))) {
+    reveal($("iEye"), t, C("results") - .06);
+    reveal($("iTitle"), t, C("results") + .06);
     resEls.forEach((el, i) => {
-      const ti = B(47 + i) - .12, k = out(p(t, ti, ti + .25));
+      const tr = C("row", i), k = out(p(t, tr - .12, tr + .15));
       css(el, { x: lerp(-1100, 0, k) });
-      const dir = RESULTS[i][1] === "up" ? -1 : 1, a = out(p(t, B(47 + i), B(47 + i) + .3));
-      css(el.lastElementChild, { y: dir * lerp(40, 0, a), s: 1 + .1 * decay(t, B(47 + i), .12) });
+      const dir = RESULTS[i][1] === "up" ? -1 : 1, a = out(p(t, tr, tr + .3));
+      css(el.lastElementChild, { y: dir * lerp(40, 0, a), s: 1 + .1 * decay(t, tr, .12) });
     });
   }
 
-  // J — core message   [B50, B54)
-  if (scene("J", t, B(50), B(54))) {
-    reveal($("m1"), t, B(50) - .06);
-    slam($("m2"), t, B(52), 1.7);
-    line($("mline"), t, B(52) + .1, B(54));
+  // J — core message
+  if (scene("J", t, C("message"), C("end"))) {
+    reveal($("m1"), t, C("message") - .06);
+    slam($("m2"), t, C("slam"), 1.7);
+    line($("mline"), t, C("slam") + .1, C("end"));
   }
 
-  // K — end card   [B54, end]
-  if (scene("K", t, B(54), 1e9)) {
-    css($("grad"), { o: .6 + .4 * out(p(t, B(54), B(56))) });
-    const wk = out(p(t, B(54), B(54) + .35));
+  // K — end card
+  if (scene("K", t, C("end"), 1e9)) {
+    css($("grad"), { o: .6 + .4 * out(p(t, C("end"), C("k1"))) });
+    const wk = out(p(t, C("end"), C("end") + .35));
     $("logoW").style.clipPath = `inset(0 ${(1 - wk) * 100}% 0 0)`;
-    const gk = out(p(t, B(55) - .1, B(55) + .15)), flick = Math.sin(p(t, B(55), B(55) + .35) * Math.PI);
+    const gk = out(p(t, C("flick") - .1, C("flick") + .15)), flick = Math.sin(p(t, C("flick"), C("flick") + .35) * Math.PI);
     css($("logoG"), { x: flick * 8, y: lerp(40, 0, gk) - flick * 22, o: gk });
-    reveal($("k1"), t, B(56) - .06);
-    reveal($("k2"), t, B(56) + .1);
-    const bk = out(p(t, B(57) - .1, B(57) + .2));
+    reveal($("k1"), t, C("k1") - .06);
+    reveal($("k2"), t, C("k1") + .15);
+    const bk = out(p(t, C("btn") - .1, C("btn") + .2));
     $("btn").style.clipPath = `inset(0 0 0 ${(1 - bk) * 100}%)`;
-    css($("btn"), { s: 1 + .04 * decay(t, B(57), .12) + .04 * decay(t, B(58), .15) });
-    reveal($("bio"), t, B(57) + .2);
-    const sk = out(p(t, B(58), B(58) + .35));
+    const bar = 4 * BEAT(), lastBar = t > C("final") ? C("final") + Math.floor((t - C("final")) / bar) * bar : C("final");
+    css($("btn"), { s: 1 + .04 * decay(t, C("btn"), .12) + .04 * decay(t, lastBar, .15) });
+    reveal($("bio"), t, C("btn") + .3);
+    const sk = out(p(t, C("social"), C("social") + .35));
     css($("social"), { x: lerp(-60, 0, sk), o: sk });
   }
 }
 
 // ───────────────────────── playback shell (outside the render contract)
-window.DURATION = DURATION;
 window.seek = seek;
 const capture = new URLSearchParams(location.search).has("capture");
 if (capture) document.body.classList.add("capture");
@@ -472,10 +483,12 @@ $("play").onclick = () => { if (audio.paused) { audio.play(); $("play").textCont
 $("replay").onclick = () => { audio.currentTime = 0; if (audio.paused) $("play").click(); };
 audio.onended = () => { $("play").textContent = "▶ Play"; };
 
-fetch("beats.json").then(r => r.json()).then(j => j.beats)
-  .catch(() => Array.from({ length: 60 }, (_, i) => i * .5))       // file:// fallback: nominal 120 BPM grid
-  .then(beats => {
-    BEATS = beats; window.BEATS = beats;
+// needs an http server (fetch): `npx http-server` in this folder, or `node render.mjs`
+Promise.all([fetch("timeline.json").then(r => r.json()), fetch("beats.json").then(r => r.json())])
+  .then(([tl, bj]) => {
+    CUES = tl.cues; PERIOD = 60 / bj.bpm; BEATS = bj.beats;
+    DURATION = tl.beats * 60 / tl.bpm;
+    window.DURATION = DURATION; window.BEATS = BEATS;
     return Promise.all([document.fonts.load('800 100px "Baloo Bhaijaan 2"'), document.fonts.load('500 100px "Baloo Bhaijaan 2"'),
       document.fonts.load('700 100px "Baloo Bhaijaan 2"'), ...[...document.images].map(i => i.decode().catch(() => {}))]);
   })
