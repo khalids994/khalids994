@@ -3,259 +3,239 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SaudiFitX · تجربة ١٤ يوم</title>
+<title>Saudifitx · تجربة ١٤ يوم</title>
 <style>
-  @font-face { font-family: Cairo; font-weight: 200 1000; font-display: block;
-    src: url(fonts/cairo-arabic.woff2) format("woff2");
-    unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC; }
-  @font-face { font-family: Cairo; font-weight: 200 1000; font-display: block;
-    src: url(fonts/cairo-latin.woff2) format("woff2");
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  /* Brand: Saudifitx Design System — Baloo Bhaijaan 2, teal #0B2D33, green #2AF45F */
+  @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 500; font-display: block; src: url(fonts/BalooBhaijaan2-Medium.ttf) format("truetype"); }
+  @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 700; font-display: block; src: url(fonts/BalooBhaijaan2-Bold.ttf) format("truetype"); }
+  @font-face { font-family: "Baloo Bhaijaan 2"; font-weight: 800; font-display: block; src: url(fonts/BalooBhaijaan2-ExtraBold.ttf) format("truetype"); }
 
   :root {
-    --bg: #07100c;
-    --green: #00a651;   /* Saudi green */
-    --lime: #c6ff3d;    /* energy accent */
-    --ink: #ffffff;
-    --muted: #8fa89a;
+    --brand-teal: #0B2D33;
+    --brand-teal-soft: #0D3235;
+    --brand-teal-deep: #082226;
+    --brand-green: #2AF45F;
+    --brand-green-bright: #57C96F;
+    --bg-elevated: #11383D;
+    --fg: #FFFFFF;
+    --fg-muted: rgba(255,255,255,0.72);
+    --fg-subtle: rgba(255,255,255,0.50);
+    --border: rgba(255,255,255,0.10);
+    --border-strong: rgba(255,255,255,0.22);
+    --shadow-md: 0 6px 16px rgba(0,0,0,0.28);
+    --shadow-inset-hi: inset 0 1px 0 rgba(255,255,255,0.10);
+    --shadow-green-glow: 0 8px 28px rgba(42,244,95,0.35);
+    --font: "Baloo Bhaijaan 2", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: #000; overflow: hidden; }
-  body { display: grid; place-items: center; font-family: Cairo, sans-serif; }
+  body { display: grid; place-items: center; font-family: var(--font); }
 
-  #stage {
-    position: relative; width: 1080px; height: 1920px; overflow: hidden;
-    background: radial-gradient(120% 80% at 50% 30%, #0d2a1c 0%, var(--bg) 60%);
-    color: var(--ink); transform-origin: center center;
-  }
-  .abs { position: absolute; left: 0; right: 0; text-align: center; will-change: transform, opacity; }
-  .center { top: 50%; left: 50%; transform: translate(-50%, -50%); right: auto; }
+  /* 9:16 story frame — 120px top/bottom safe area, 80px sides */
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: var(--brand-teal); color: var(--fg); transform-origin: center; }
+  #grad { position: absolute; inset: 0;
+    background: radial-gradient(120% 90% at 0% 100%, var(--brand-green-bright) 0%, var(--brand-teal-soft) 45%, var(--brand-teal) 75%); }
+  .abs { position: absolute; left: 80px; right: 80px; text-align: center; will-change: transform, opacity; }
 
-  /* background texture */
-  #grid { inset: 0; position: absolute; opacity: .08;
-    background-image: linear-gradient(var(--green) 1px, transparent 1px), linear-gradient(90deg, var(--green) 1px, transparent 1px);
-    background-size: 90px 90px; }
-  .blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: .35; }
-  #blobA { width: 700px; height: 700px; background: var(--green); }
-  #blobB { width: 520px; height: 520px; background: var(--lime); opacity: .15; }
+  /* persistent frame, as in the post template: logo top-left, social row bottom-left */
+  #logo { position: absolute; width: 1057px; height: 299px; left: 0; top: 0; transform-origin: 0 0; }
+  #logo img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #social { position: absolute; left: 80px; bottom: 120px; height: 96px; }
 
-  /* logo */
-  .logo { direction: ltr; font-weight: 900; letter-spacing: -2px; white-space: nowrap; line-height: 1; }
-  .logo span { display: inline-block; }
-  .logo .x { color: var(--lime); }
-  #logoLine { position: absolute; height: 10px; background: var(--green); border-radius: 10px; left: 50%; }
+  #kicker { top: 400px; font-size: 104px; font-weight: 700; color: var(--fg-muted); }
+  #bigNum { top: 600px; font-size: 560px; font-weight: 800; line-height: 1; color: var(--brand-green); letter-spacing: -0.02em; }
+  #dayWord { top: 1230px; font-size: 150px; font-weight: 800; }
 
-  #kicker { top: 540px; font-size: 96px; font-weight: 700; color: var(--muted); }
-  #bigNum { top: 620px; font-size: 520px; font-weight: 1000; line-height: 1; color: var(--lime);
-    text-shadow: 0 0 80px rgba(198,255,61,.35); }
-  #dayWord { top: 1180px; font-size: 150px; font-weight: 900; }
+  #focusText { top: 790px; font-size: 130px; font-weight: 800; line-height: 1.2; }
+  #focusText b { display: block; color: var(--brand-green); font-size: 200px; font-weight: 800; }
+  .ring { position: absolute; left: 50%; top: 1000px; border-radius: 50%; border: 2px solid var(--border-strong); }
+  #ring3 { border-color: var(--brand-green); }
 
-  #focusText { top: 820px; font-size: 128px; font-weight: 900; line-height: 1.25; }
-  #focusText b { color: var(--lime); font-weight: 1000; display: block; font-size: 190px; }
-  .ring { position: absolute; left: 50%; top: 960px; border-radius: 50%; border: 6px solid var(--green); }
-  #crossH, #crossV { position: absolute; background: var(--lime); }
-
-  #daysTitle { top: 360px; font-size: 92px; font-weight: 900; }
-  #daysTitle em { font-style: normal; color: var(--lime); }
-  #days { position: absolute; top: 600px; left: 90px; right: 90px; display: grid;
-    grid-template-columns: repeat(4, 1fr); gap: 36px; direction: rtl; }
-  .day { height: 190px; border-radius: 36px; border: 4px solid rgba(143,168,154,.35);
-    display: grid; place-items: center; font-size: 84px; font-weight: 900; color: var(--muted);
+  #daysTitle { top: 420px; font-size: 96px; font-weight: 800; line-height: 1.2; }
+  #daysTitle span { display: block; font-size: 60px; font-weight: 500; color: var(--fg-muted); }
+  #days { position: absolute; top: 700px; left: 80px; right: 80px; display: grid;
+    grid-template-columns: repeat(4, 1fr); gap: 32px; }
+  .day { height: 180px; border-radius: 24px; background: var(--bg-elevated); border: 1px solid var(--border);
+    box-shadow: var(--shadow-md), var(--shadow-inset-hi);
+    display: grid; place-items: center; font-size: 84px; font-weight: 800; color: var(--fg-subtle);
     position: relative; overflow: hidden; }
-  .day .fill { position: absolute; inset: 0; background: var(--green); transform-origin: bottom; }
+  .day .fill { position: absolute; inset: 0; background: var(--brand-green); transform-origin: bottom; transform: scaleY(0); }
   .day .n { position: relative; }
   .day:nth-child(13) { grid-column: 2; }
-  #bar { position: absolute; top: 1640px; left: 120px; right: 120px; height: 28px; border-radius: 28px; background: rgba(255,255,255,.1); overflow: hidden; }
-  #barFill { position: absolute; right: 0; top: 0; bottom: 0; background: linear-gradient(270deg, var(--green), var(--lime)); border-radius: 28px; }
-  #pct { top: 1700px; font-size: 64px; font-weight: 900; color: var(--lime); }
+  #bar { position: absolute; top: 1560px; left: 80px; right: 80px; height: 20px; border-radius: 999px; background: var(--border); overflow: hidden; }
+  #barFill { position: absolute; right: 0; top: 0; bottom: 0; background: var(--brand-green); border-radius: 999px; }
+  #pct { top: 1600px; font-size: 60px; font-weight: 800; color: var(--brand-green); }
 
-  #pillTitle { top: 330px; font-size: 96px; font-weight: 900; }
-  .pill { position: absolute; left: 110px; right: 110px; height: 230px; border-radius: 48px;
-    background: rgba(255,255,255,.05); border: 3px solid rgba(0,166,81,.6);
-    display: flex; align-items: center; gap: 48px; padding: 0 60px; }
-  .pill .ic { width: 130px; height: 130px; border-radius: 34px; background: var(--green); display: grid; place-items: center; flex: none; }
-  .pill .ic svg { width: 78px; height: 78px; stroke: #07100c; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .pill h3 { font-size: 84px; font-weight: 900; line-height: 1.1; }
-  .pill p { font-size: 44px; color: var(--muted); font-weight: 600; }
+  #pillTitle { top: 360px; font-size: 100px; font-weight: 800; }
+  .card { position: absolute; left: 80px; right: 80px; height: 230px; border-radius: 24px;
+    background: var(--bg-elevated); border: 1px solid var(--border); box-shadow: var(--shadow-md), var(--shadow-inset-hi);
+    display: flex; align-items: center; gap: 48px; padding: 0 56px; }
+  .card .ic { width: 128px; height: 128px; border-radius: 999px; background: var(--brand-green); display: grid; place-items: center; flex: none; }
+  .card .ic svg { width: 64px; height: 64px; stroke: var(--brand-teal); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .card h3 { font-size: 80px; font-weight: 800; line-height: 1.15; }
+  .card p { font-size: 46px; font-weight: 500; color: var(--fg-muted); line-height: 1.3; }
 
-  #ctaA { top: 640px; font-size: 120px; font-weight: 900; line-height: 1.2; }
-  #ctaA b { color: var(--lime); }
-  #ctaBtn { position: absolute; left: 50%; top: 1030px; padding: 36px 110px; border-radius: 140px;
-    background: var(--lime); color: #07100c; font-size: 88px; font-weight: 1000; white-space: nowrap; }
-  #handle { top: 1500px; font-size: 64px; font-weight: 800; color: var(--muted); direction: ltr; }
+  #ctaA { top: 700px; font-size: 128px; font-weight: 800; line-height: 1.2; }
+  #ctaA b { color: var(--brand-green); font-weight: 800; }
+  #ctaSub { top: 1060px; font-size: 56px; font-weight: 500; color: var(--fg-muted); }
+  #ctaBtn { position: absolute; left: 50%; top: 1240px; padding: 34px 110px; border-radius: 999px;
+    background: var(--brand-green); color: var(--brand-teal); font-size: 84px; font-weight: 800; white-space: nowrap;
+    box-shadow: var(--shadow-green-glow); line-height: 1.3; }
 
   #controls { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 5; direction: ltr; }
-  #controls button { font: 700 14px Cairo, sans-serif; padding: 8px 16px; border-radius: 99px; border: 0; background: #c6ff3d; color: #07100c; cursor: pointer; }
+  #controls button { font: 700 15px var(--font); padding: 8px 18px; border-radius: 999px; border: 0; background: var(--brand-green); color: var(--brand-teal); cursor: pointer; }
   body.capture #controls { display: none; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="grid"></div>
-  <div class="blob" id="blobA"></div>
-  <div class="blob" id="blobB"></div>
+  <div id="grad"></div>
 
-  <!-- Scene 1: logo -->
-  <div class="abs center logo" id="logo1" style="font-size:190px"></div>
-  <div id="logoLine"></div>
-
-  <!-- Scene 2: 14 days -->
+  <!-- Scene 2: تجربة ١٤ يوم -->
   <div class="abs" id="kicker">تجربة</div>
   <div class="abs" id="bigNum">١</div>
   <div class="abs" id="dayWord">يوم</div>
 
-  <!-- Scene 3: focus -->
+  <!-- Scene 3: لاستعادة التركيز -->
   <div class="ring" id="ring1"></div>
   <div class="ring" id="ring2"></div>
   <div class="ring" id="ring3"></div>
-  <div id="crossH"></div><div id="crossV"></div>
   <div class="abs" id="focusText">لاستعادة<b>التركيز</b></div>
 
-  <!-- Scene 4: day grid -->
-  <div class="abs" id="daysTitle">يوم بيوم… <em>خطوة بخطوة</em></div>
+  <!-- Scene 4: 14-day tracker -->
+  <div class="abs" id="daysTitle">يوم بيوم<span>عادة صغيرة كل يوم… وتركيزك يرجع</span></div>
   <div id="days"></div>
   <div id="bar"><div id="barFill"></div></div>
   <div class="abs" id="pct">٠٪</div>
 
-  <!-- Scene 5: pillars -->
+  <!-- Scene 5: daily habits (Lucide icons) -->
   <div class="abs" id="pillTitle">٤ عادات يومية</div>
-  <div class="pill" id="p0"><div class="ic"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div><div><h3>نوم أعمق</h3><p>روتين ثابت قبل النوم</p></div></div>
-  <div class="pill" id="p1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M13 4a1.5 1.5 0 1 0 0 .01M7 21l3-6 3 2v4M10 15l1-5 4 3h4M11 10l-4 1-2 3"/></svg></div><div><h3>حركة يومية</h3><p>٣٠ دقيقة تنشّط عقلك</p></div></div>
-  <div class="pill" id="p2"><div class="ic"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M4 4l16 16"/></svg></div><div><h3>ديتوكس رقمي</h3><p>وقت أقل على الشاشة</p></div></div>
-  <div class="pill" id="p3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/></svg></div><div><h3>تنفّس وصفاء</h3><p>٥ دقائق تأمل كل صباح</p></div></div>
+  <div class="card" id="c0"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></div><div><h3>نوم أعمق</h3><p>روتين ثابت قبل النوم</p></div></div>
+  <div class="card" id="c1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><h3>حركة يومية</h3><p>٣٠ دقيقة تنشّط عقلك</p></div></div>
+  <div class="card" id="c2"><div class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M3 3l18 18"/></svg></div><div><h3>ديتوكس رقمي</h3><p>وقت أقل على الشاشة</p></div></div>
+  <div class="card" id="c3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg></div><div><h3>تنفّس وصفاء</h3><p>٥ دقائق كل صباح</p></div></div>
 
   <!-- Scene 6: CTA -->
   <div class="abs" id="ctaA">جاهز تستعيد<br><b>تركيزك؟</b></div>
-  <div id="ctaBtn">ابدأ التحدي الآن</div>
-  <div class="abs center logo" id="logo2" style="font-size:110px"></div>
-  <div class="abs" id="handle">@saudifitx</div>
+  <div class="abs" id="ctaSub">١٤ يوم. عادة وحدة كل يوم.</div>
+  <div id="ctaBtn">ابدأ التحدي</div>
+
+  <!-- persistent brand frame -->
+  <div id="logo"><img id="logoWhite" src="assets/logo-white.png" alt=""><img id="logoGreen" src="assets/logo-green.png" alt=""></div>
+  <img id="social" src="assets/social-row.png" alt="@saudifitx">
 </div>
 
 <div id="controls"><button id="replay">↻ Replay</button><button id="pause">❚❚ Pause</button></div>
 
 <script>
-const DURATION = 20;              // seconds
+const DURATION = 20; // seconds
 const $ = id => document.getElementById(id);
 const AR = n => String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const p = (t, a, b) => clamp((t - a) / (b - a));
 const lerp = (a, b, k) => a + (b - a) * k;
-const easeOut = k => 1 - Math.pow(1 - k, 3);
-const easeInOut = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-const backOut = k => { const c = 1.9; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
-// visibility window: fades in over [a, a+fi], out over [b-fo, b]
-const win = (t, a, b, fi = .4, fo = .4) => Math.min(easeOut(p(t, a, a + fi)), 1 - p(t, b - fo, b));
+// brand easing: smooth ease-out for entrances (≈ cubic-bezier(0.22,1,0.36,1)), no overshoot
+const ease = k => 1 - Math.pow(1 - k, 4);
+const inOut = k => k < .5 ? 8 * k ** 4 : 1 - Math.pow(-2 * k + 2, 4) / 2;
+// visibility window: fade in over [a, a+fi], out over [b-fo, b]
+const win = (t, a, b, fi = .6, fo = .4) => Math.min(ease(p(t, a, a + fi)), 1 - p(t, b - fo, b));
+// brand entrance: fade + small upward rise
+const rise = (el, t, a, o = 1, dist = 24, dur = .7) => set(el, { y: lerp(dist, 0, ease(p(t, a, a + dur))), o: Math.min(o, ease(p(t, a, a + dur))) });
 
-function set(el, { x = 0, y = 0, s = 1, r = 0, o = 1, blur = 0, base = "" }) {
-  el.style.transform = `${base} translate(${x}px, ${y}px) scale(${s}) rotate(${r}deg)`;
+function set(el, { x = 0, y = 0, s = 1, o = 1, blur = 0, base = "" }) {
+  el.style.transform = `${base} translate(${x}px, ${y}px) scale(${s})`;
   el.style.opacity = o;
   el.style.filter = blur ? `blur(${blur}px)` : "none";
 }
 
-// build logos + day cells
-for (const id of ["logo1", "logo2"])
-  $(id).innerHTML = [..."SAUDIFIT"].map(c => `<span>${c}</span>`).join("") + `<span class="x">X</span>`;
 $("days").innerHTML = Array.from({ length: 14 }, (_, i) => `<div class="day"><div class="fill"></div><span class="n">${AR(i + 1)}</span></div>`).join("");
 const cells = [...document.querySelectorAll(".day")];
-const C = "translate(-50%, -50%)";
+
+// logo positions: centered hero → top-left header (template placement)
+const LOGO_W = 1057, LOGO_H = 299;
+const HERO = { s: .8, x: (1080 - LOGO_W * .8) / 2, y: (1920 - LOGO_H * .8) / 2 };
+const HEAD = { s: .36, x: 80, y: 120 };
+const CTA = { s: .66, x: (1080 - LOGO_W * .66) / 2, y: 300 };
 
 function render(t) {
-  // ── background drift
-  set($("blobA"), { x: 200 + Math.sin(t * .5) * 180, y: 300 + Math.cos(t * .4) * 250, o: .35 });
-  set($("blobB"), { x: 500 + Math.cos(t * .6) * 200, y: 1200 + Math.sin(t * .3) * 200, o: .15 });
-  $("grid").style.transform = `translateY(${-(t * 20) % 90}px)`;
+  // signature gradient breathes slightly
+  $("grad").style.opacity = .55 + .25 * Math.sin(t * .6);
 
-  // ── Scene 1: logo reveal (0 – 2.8)
+  // ── Logo: hero reveal → arrow flick → docks top-left; returns to hero for the CTA
   {
-    const o = 1 - p(t, 2.4, 2.8);
-    const spans = $("logo1").children;
-    [...spans].forEach((sp, i) => {
-      const k = p(t, .15 + i * .07, .55 + i * .07);
-      if (i === spans.length - 1) {
-        const kx = p(t, .9, 1.5);
-        set(sp, { s: lerp(3.5, 1, backOut(kx)), r: lerp(-180, 0, easeOut(kx)), o: kx > 0 ? 1 : 0 });
-      } else set(sp, { y: lerp(160, 0, easeOut(k)), o: k, blur: (1 - k) * 12 });
-    });
-    set($("logo1"), { base: C, s: lerp(1, 1.08, p(t, 1.5, 2.8)), o });
-    const lw = easeInOut(p(t, 1.2, 1.9)) * 820;
-    $("logoLine").style.width = lw + "px";
-    set($("logoLine"), { base: `translateX(-50%)`, y: 1080, o });
+    const inW = ease(p(t, .2, 1.0));      // white type rises in
+    const inG = ease(p(t, .5, 1.3));      // green S + arrow
+    const flick = Math.sin(p(t, 1.3, 1.75) * Math.PI);   // brief upward flick, settles back
+    const dock = inOut(p(t, 2.3, 3.0));
+    const back = inOut(p(t, 17.0, 17.6));
+    const from = back > 0 ? HEAD : HERO, to = back > 0 ? CTA : HEAD, k = back > 0 ? back : dock;
+    const s = lerp(from.s, to.s, k), x = lerp(from.x, to.x, k), y = lerp(from.y, to.y, k);
+    $("logo").style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+    set($("logoWhite"), { y: lerp(30, 0, inW), o: inW });
+    set($("logoGreen"), { x: flick * 10, y: lerp(30, 0, inG) - flick * 26, o: inG });
+    set($("social"), { y: lerp(24, 0, ease(p(t, 2.6, 3.3))), o: ease(p(t, 2.6, 3.3)) });
   }
 
-  // ── Scene 2: تجربة ١٤ يوم (2.8 – 6.4)
+  // ── Scene 2: تجربة ١٤ يوم (3.0 – 6.6)
   {
-    const o = win(t, 2.8, 6.4, .3, .35);
-    set($("kicker"), { y: lerp(60, 0, easeOut(p(t, 2.8, 3.3))), o });
-    const kc = easeOut(p(t, 3.0, 4.4));
+    const o = win(t, 3.0, 6.6);
+    rise($("kicker"), t, 3.0, o);
+    const kc = inOut(p(t, 3.2, 4.6));
     $("bigNum").textContent = AR(Math.max(1, Math.round(kc * 14)));
-    const pop = p(t, 4.4, 4.8);
-    set($("bigNum"), { s: lerp(.4, 1, backOut(p(t, 3.0, 3.5))) * (1 + Math.sin(pop * Math.PI) * .12), o });
-    set($("dayWord"), { y: lerp(80, 0, easeOut(p(t, 4.3, 4.8))), o: Math.min(o, p(t, 4.3, 4.7)) });
+    set($("bigNum"), { y: lerp(40, 0, ease(p(t, 3.2, 3.9))), s: lerp(.92, 1, ease(p(t, 3.2, 4.6))), o: Math.min(o, ease(p(t, 3.2, 3.8))) });
+    rise($("dayWord"), t, 4.5, o);
   }
 
-  // ── Scene 3: لاستعادة التركيز (6.4 – 9.8)
+  // ── Scene 3: لاستعادة التركيز (6.6 – 10.0)
   {
-    const o = win(t, 6.4, 9.8, .3, .35);
-    const f = easeInOut(p(t, 6.5, 7.8));
-    set($("focusText"), { s: lerp(1.25, 1, f), blur: (1 - f) * 28, o });
+    const o = win(t, 6.6, 10.0, .4);
+    const f = inOut(p(t, 6.7, 8.0));
+    set($("focusText"), { s: lerp(1.12, 1, f), blur: (1 - f) * 24, o });
     ["ring1", "ring2", "ring3"].forEach((id, i) => {
-      const k = easeInOut(p(t, 6.4 + i * .15, 7.9 + i * .1));
-      const d = lerp(1900 - i * 250, 820 - i * 170, k);
-      const el = $(id);
+      const k = inOut(p(t, 6.6 + i * .15, 8.1 + i * .1));
+      const el = $(id), d = lerp(2000 - i * 250, 900 - i * 160, k);
       el.style.width = el.style.height = d + "px";
-      el.style.borderColor = i === 2 ? "var(--lime)" : "var(--green)";
-      set(el, { base: C, o: o * (.25 + i * .25) });
+      set(el, { base: "translate(-50%, -50%)", o: o * (i === 2 ? .7 : .5) });
     });
-    const ck = easeOut(p(t, 7.7, 8.2));
-    Object.assign($("crossH").style, { width: 120 * ck + "px", height: "8px", left: 540 - 60 * ck + "px", top: "596px" });
-    Object.assign($("crossV").style, { width: "8px", height: 120 * ck + "px", left: "536px", top: 600 - 60 * ck + "px" });
-    $("crossH").style.opacity = $("crossV").style.opacity = o;
   }
 
-  // ── Scene 4: day grid (9.8 – 14)
+  // ── Scene 4: 14-day tracker (10.0 – 14.2)
   {
-    const o = win(t, 9.8, 14, .35, .35);
-    set($("daysTitle"), { y: lerp(-60, 0, easeOut(p(t, 9.8, 10.3))), o });
-    let done = 0;
+    const o = win(t, 10.0, 14.2);
+    rise($("daysTitle"), t, 10.0, o);
     cells.forEach((c, i) => {
-      const a = p(t, 9.9 + i * .04, 10.3 + i * .04);
-      set(c, { s: lerp(.6, 1, backOut(a)), o: Math.min(a, o) });
-      const fk = easeOut(p(t, 10.6 + i * .17, 10.85 + i * .17));
+      const a = ease(p(t, 10.1 + i * .035, 10.7 + i * .035));
+      set(c, { y: lerp(24, 0, a), o: Math.min(a, o) });
+      const fk = ease(p(t, 10.8 + i * .17, 11.1 + i * .17));
       c.firstChild.style.transform = `scaleY(${fk})`;
-      c.style.color = fk > .5 ? "#07100c" : "";
-      c.style.borderColor = fk > 0 ? "var(--lime)" : "";
-      if (fk >= 1) done++;
+      c.style.color = fk > .5 ? "var(--brand-teal)" : "";
     });
+    const prog = p(t, 10.8, 13.4);
     set($("bar"), { o });
-    $("barFill").style.width = (easeOut(p(t, 10.6, 13.2)) * 100) + "%";
-    $("pct").textContent = AR(Math.round(easeOut(p(t, 10.6, 13.2)) * 100)) + "٪";
+    $("barFill").style.width = prog * 100 + "%";
+    $("pct").textContent = AR(Math.round(prog * 100)) + "٪";
     set($("pct"), { o });
   }
 
-  // ── Scene 5: pillars (14 – 17.2)
+  // ── Scene 5: habits (14.2 – 17.2)
   {
-    const o = win(t, 14, 17.2, .3, .35);
-    set($("pillTitle"), { y: lerp(-60, 0, easeOut(p(t, 14, 14.4))), o });
+    const o = win(t, 14.2, 17.2, .5, .35);
+    rise($("pillTitle"), t, 14.2, o);
     for (let i = 0; i < 4; i++) {
-      const k = p(t, 14.2 + i * .25, 14.7 + i * .25);
-      const el = $("p" + i);
-      el.style.top = 560 + i * 290 + "px";
-      set(el, { x: lerp(-1100, 0, easeOut(k)), o: Math.min(o, k) });
-      el.querySelector(".ic").style.transform = `rotate(${lerp(-90, 0, backOut(p(t, 14.4 + i * .25, 14.9 + i * .25)))}deg)`;
+      const el = $("c" + i);
+      el.style.top = 580 + i * 265 + "px";
+      const k = ease(p(t, 14.4 + i * .22, 15.1 + i * .22));
+      set(el, { y: lerp(40, 0, k), o: Math.min(o, k) });
     }
   }
 
-  // ── Scene 6: CTA (17.2 – 20)
+  // ── Scene 6: CTA (17.4 – 20)
   {
-    const o = p(t, 17.2, 17.6);
-    set($("ctaA"), { y: lerp(80, 0, easeOut(p(t, 17.2, 17.7))), o });
-    const b = p(t, 17.6, 18.1);
-    const pulse = 1 + Math.max(0, Math.sin((t - 18.1) * 5)) * .05 * (t > 18.1);
-    set($("ctaBtn"), { base: "translateX(-50%)", s: lerp(0, 1, backOut(b)) * pulse, o: b });
-    const l = p(t, 18.2, 18.7);
-    set($("logo2"), { base: C, y: 350, o: l, s: lerp(.8, 1, easeOut(l)) });
-    [...$("logo2").children].forEach(sp => set(sp, {}));
-    set($("handle"), { y: lerp(40, 0, easeOut(p(t, 18.5, 19))), o: p(t, 18.5, 19) });
+    rise($("ctaA"), t, 17.5);
+    rise($("ctaSub"), t, 17.9);
+    const b = ease(p(t, 18.3, 19.0));
+    set($("ctaBtn"), { base: "translateX(-50%)", y: lerp(24, 0, b), o: b });
   }
 }
 
@@ -273,20 +253,21 @@ function fit() {
 }
 addEventListener("resize", fit); fit();
 
+const LOOP = DURATION + 1.5;
 let start = null, paused = false, pauseAt = 0;
 function loop(now) {
   if (start === null) start = now;
-  const t = paused ? pauseAt : ((now - start) / 1000) % (DURATION + 1.5);
-  render(Math.min(t, DURATION));
+  render(Math.min(paused ? pauseAt : ((now - start) / 1000) % LOOP, DURATION));
   requestAnimationFrame(loop);
 }
 $("replay").onclick = () => { start = null; paused = false; $("pause").textContent = "❚❚ Pause"; };
 $("pause").onclick = () => {
-  if (!paused) { pauseAt = ((performance.now() - start) / 1000) % (DURATION + 1.5); paused = true; $("pause").textContent = "▶ Play"; }
+  if (!paused) { pauseAt = ((performance.now() - start) / 1000) % LOOP; paused = true; $("pause").textContent = "▶ Play"; }
   else { start = performance.now() - pauseAt * 1000; paused = false; $("pause").textContent = "❚❚ Pause"; }
 };
 render(0);
-document.fonts.ready.then(() => { if (!capture) requestAnimationFrame(loop); window.ready = true; });
+Promise.all([document.fonts.ready, ...[...document.images].map(i => i.decode().catch(() => {}))])
+  .then(() => { if (!capture) requestAnimationFrame(loop); window.ready = true; });
 </script>
 </body>
 </html>

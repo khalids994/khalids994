@@ -26,9 +26,9 @@ const duration = await page.evaluate(() => window.DURATION);
 const stage = page.locator("#stage");
 
 if (stills) {
-  for (const t of [1.8, 4.9, 8.5, 12.5, 16.2, 19.5]) {
+  for (const t of [1.55, 5.2, 8.8, 13.6, 16.4, 19.6]) {
     await page.evaluate(t => window.render(t), t);
-    await stage.screenshot({ path: path.join(dir, `still-${t}.png`) });
+    await stage.screenshot({ path: path.join(process.env.STILLS_DIR ?? dir, `still-${t}.png`) });
   }
   await browser.close();
   process.exit(0);
