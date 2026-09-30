@@ -261,7 +261,8 @@ place(impact(1.4, 1.2), C("m3")); place(crash(2.0), C("m3"), 0.6)
 place(impact(1.6, 1.1), C("end"))
 place(zip_up(), C("flick") - 0.08, 1.0)                              # the arrow in the S flicks up
 place(bell(hz(86)), C("flick"), 0.9)
-place(crash(1.8), C("flick"), 0.5)                                   # particle burst
+for i in range(14):                                                  # the 14 day-dots land under the logo
+    place(tick(1300 + i * 45), C("flick") + i * BEAT / 4 + .38, 0.45)
 groove(TL["cues"]["k1"], TL["cues"]["final"], claps=False)
 place(pad([hz(n) for n in (62, 66, 69, 74)], DUR - C("end"), 0.12), C("end"), 1.0)
 place(pluck(hz(74)), C("k1"), 0.4)

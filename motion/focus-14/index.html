@@ -31,18 +31,6 @@
   .ink { color: var(--teal); } .g { color: var(--green); } .w { color: #fff; }
   svg.i { stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* HUD — technical frame, colour follows the field underneath */
-  #hud { position: absolute; inset: 0; pointer-events: none; color: var(--hud, rgba(255,255,255,.7)); font: 500 26px/1 var(--mono); letter-spacing: .06em; direction: ltr; z-index: 20; }
-  #hud .cr { position: absolute; width: 44px; height: 44px; border-color: currentColor; border-style: solid; border-width: 0; opacity: .8; }
-  #hud .tl { left: 36px; top: 36px; border-left-width: 3px; border-top-width: 3px; }
-  #hud .tr { right: 36px; top: 36px; border-right-width: 3px; border-top-width: 3px; }
-  #hud .bl { left: 36px; bottom: 36px; border-left-width: 3px; border-bottom-width: 3px; }
-  #hud .br { right: 36px; bottom: 36px; border-right-width: 3px; border-bottom-width: 3px; }
-  #hud .t { position: absolute; white-space: nowrap; }
-  #hTL { left: 100px; top: 58px; font-weight: 700; } #hTR { right: 100px; top: 52px; font: 700 30px/1 var(--font); direction: rtl; }
-  #hBL { left: 100px; bottom: 56px; } #hBR { right: 100px; bottom: 56px; }
-  #hBR i { display: inline-block; width: 16px; height: 16px; border: 2px solid currentColor; margin-left: 6px; vertical-align: -1px; }
-  #hBR i.on { background: currentColor; }
   #grain { position: absolute; inset: 0; z-index: 19; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='14' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E"); }
   #wipe { position: absolute; inset: 0; display: none; }   /* below the scenes (DOM order), above the canvas */
@@ -208,7 +196,7 @@
 
   <section class="scene" id="EN">
     <div id="grad"></div>
-    <canvas id="burst" style="position:absolute;inset:0;width:1080px;height:1920px"></canvas>
+    <canvas id="dcv" style="position:absolute;inset:0;width:1080px;height:1920px"></canvas>
     <div id="logo"><img id="logoW" src="assets/logo-white.png" alt=""><img id="logoG" src="assets/logo-green.png" alt=""></div>
     <div class="r d w mask" id="k1"><span>تحدي ١٤ يوم</span></div>
     <div class="r d g mask" id="k2"><span>لاستعادة التركيز</span></div>
@@ -218,13 +206,6 @@
   </section>
 
   <div id="grain"></div>
-  <div id="hud">
-    <i class="cr tl"></i><i class="cr tr"></i><i class="cr bl"></i><i class="cr br"></i>
-    <div class="t" id="hTL">SAUDIFITX — FOCUS/14</div>
-    <div class="t" id="hTR"></div>
-    <div class="t" id="hBL"></div>
-    <div class="t" id="hBR"></div>
-  </div>
 </div>
 
 <div id="controls"><button id="play">▶ Play</button><button id="replay">↻ Replay</button></div>
@@ -310,9 +291,9 @@ const ICON = {
 const svg = (k, cls = "i") => `<svg class="${cls}" viewBox="0 0 24 24">${ICON[k]}</svg>`;
 
 // ── static layout (deterministic, built once)
-const cv = $("cv"), ctx = cv.getContext("2d"), burst = $("burst"), bctx = burst.getContext("2d");
+const cv = $("cv"), ctx = cv.getContext("2d"), dcv = $("dcv"), dctx = dcv.getContext("2d");
 const DPR = window.devicePixelRatio || 1;
-for (const c of [cv, burst]) { c.width = 1080 * DPR; c.height = 1920 * DPR; }
+for (const c of [cv, dcv]) { c.width = 1080 * DPR; c.height = 1920 * DPR; }
 
 const WORDS = ["إشعار", "رسالة جديدة", "٩٩+", "تمرير", "فيديو قصير", "تنبيه", "بث مباشر", "@منشن", "ريلز", "لايك", "٣ رسائل", "تحديث", "ستوري", "إعلان", "١٢+", "تعليق", "قروب", "مكالمة فائتة"];
 const rng = mulberry32(14);   // same seed + draw order as score.py → pings land on these words
@@ -325,7 +306,7 @@ const chaosEls = [...$("chaos").children];
 const TILE = 90, TC = 12, TR_ = 22;
 
 const TILES = [["السوشال", "users", 0], ["الفيديو", "play", 0], ["الأخبار", "news", 0], ["المتصفح", "globe", 0],
-  ["الاتصال", "phone", 1], ["واتساب", "chat", 1], ["نفاذ", "id", 1], ["البنك", "bank", 1], ["الخرائط", "pin", 1], ["تطبيقات الدوام", "work", 1]];
+  ["الاتصال", "phone", 1], ["واتساب", "chat", 1], ["نفاذ", "id", 1], ["البنك", "bank", 1], ["الخرائط", "pin", 1], ["الدوام", "work", 1]];
 $("tiles").innerHTML = TILES.map(([l, ic, ok]) => { const fs = l.length > 8 ? "--fs:40px" : ""; return `<div class="tile ${ok ? "ok" : "blk"}"><div class="face front">${svg(ic)}<span class="lb" style="${fs}">${l}</span>${ok ? `<div class="badge">${svg("check")}</div>` : ""}</div>${ok ? "" : `<div class="face back">${svg(ic)}<span class="lb" style="${fs}">${l}</span></div>`}</div>`; }).join("");
 const tileEls = [...$("tiles").children];
 
@@ -337,7 +318,6 @@ const RESULTS = [["وقت الشاشة", "down"], ["مرات فتح الجوال
 $("rows").innerHTML = RESULTS.map(([l, a], i) => `<div class="res" style="top:${560 + i * 300}px"><b>${l}</b><div class="arr">${svg(a)}</div></div>`).join("");
 const resEls = [...$("rows").children];
 
-const SECTIONS = [["problem0", "٠١ — المشكلة"], ["study", "٠٢ — الدليل"], ["product", "٠٣ — التحدي"], ["phone", "٠٤ — الخطة"], ["results", "٠٥ — النتيجة"], ["end", "٠٦ — ابدأ"]];
 
 // chart geometry for the attention-vs-age curve
 const CH = { x0: 130, x1: 950, y0: 640, y1: 1240, a0: 20, a1: 70 };
@@ -347,33 +327,18 @@ const attY = a => lerp(CH.y0 + 40, CH.y1 - 40, Math.pow((a - CH.a0) / (CH.a1 - C
 // product ring dots: seeded scatter → ring
 const ringRng = mulberry32(77);
 const RING = Array.from({ length: 14 }, () => ({ x: 120 + ringRng() * 840, y: 300 + ringRng() * 900 }));
-// end-card burst particles
-const bRng = mulberry32(99);
-const PARTS = Array.from({ length: 80 }, () => ({ a: bRng() * Math.PI * 2, v: 500 + bRng() * 1500, s: 6 + bRng() * 16, kind: bRng(), col: bRng() < .6 ? COL.green : "#fff", life: 1.1 + bRng() * 1.2 }));
 
 function field(color) { $("stage").style.background = color; }
-function hud(dark) { $("hud").style.setProperty("--hud", dark ? "rgba(11,45,51,.75)" : "rgba(255,255,255,.72)"); }
 
 function seek(t) {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.clearRect(0, 0, 1080, 1920);
   $("wipe").style.display = "none";
 
-  // ── HUD: section label, timecode, bar counter
-  {
-    let label = SECTIONS[0][1];
-    for (const [cue, l] of SECTIONS) if (cue === "problem0" || t >= C(cue)) label = l;
-    $("hTR").textContent = label;
-    const f = Math.floor(t * 60), ss = Math.floor(t) % 60, mm = Math.floor(t / 60);
-    $("hBL").textContent = `00:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}:${String(f % 60).padStart(2, "0")}   60 FPS`;
-    const beat = Math.max(0, Math.floor((t - B(0)) / PERIOD)), bar = Math.floor(beat / 4) + 1;
-    $("hBR").innerHTML = `${[0, 1, 2, 3].map(k => `<i class="${k === beat % 4 ? "on" : ""}"></i>`).join("")}   ${BPM} BPM · BAR ${String(Math.min(bar, BARS)).padStart(2, "0")}/${BARS}`;
-  }
-
   // ── A: truchet chaos + notifications → snap into order → green wipe → ٤٠ ثانية
   if (scene("A", t, 0, C("problem"))) {
     const snap = C("snap"), wipe = C("wipe"), wk = io(p(t, wipe, wipe + .42));
-    field(COL.teal); hud(wk > .5);
+    field(COL.teal);
     if (wk < 1) {
       ctx.lineWidth = 12; ctx.lineCap = "round";
       const step = Math.floor(t * 8), fr = t * 8 - step;
@@ -421,14 +386,14 @@ function seek(t) {
     const cards = [["pc1", "problem", "p2", COL.paper, 1], ["pc2", "p2", "p3", COL.teal, 0], ["pc3", "p3", "study", COL.green, 1]];
     cards.forEach(([id, a, b]) => cardIn($(id), t, C(a), C(b)));
     const cur = t >= C("p3") ? 2 : t >= C("p2") ? 1 : 0;
-    field(cur === 0 ? COL.green : cards[cur - 1][3]); hud(cards[cur][4]);
+    field(cur === 0 ? COL.green : cards[cur - 1][3]);
   }
 
   // ── S1: attention-vs-age chart, marker rewinds 10 years
   if (scene("S1", t, C("study"), C("dots"))) {
-    field(COL.paper); hud(true);
+    field(COL.paper);
     reveal($("s1title"), t, C("study"));
-    css($("s1eye"), { o: out(p(t, C("study"), C("study") + .4)) * .7 });
+    $("s1eye").style.clipPath = `inset(0 0 0 ${(1 - out(p(t, C("study"), C("study") + .5))) * 100}%)`;
     const ink = a => `rgba(11,45,51,${a})`;
     // axes + ticks
     const ax = out(p(t, C("study") + .2, C("chart")));
@@ -437,11 +402,11 @@ function seek(t) {
     ctx.beginPath(); ctx.moveTo(CH.x0, CH.y0); ctx.lineTo(CH.x0, lerp(CH.y0, CH.y1, ay));
     if (axx > 0) ctx.lineTo(lerp(CH.x0, CH.x1, axx), CH.y1);
     ctx.stroke();
-    ctx.fillStyle = ink(.55 * ax); ctx.font = "500 40px 'Baloo Bhaijaan 2'"; ctx.textAlign = "center";
-    for (let a = 20; a <= 70; a += 10) { ctx.fillText(AR(a), ageX(a), CH.y1 + 58); ctx.fillRect(ageX(a) - 1.5, CH.y1, 3, 14); }
-    ctx.font = "700 42px 'Baloo Bhaijaan 2'"; ctx.fillStyle = ink(.8 * ax);
-    ctx.textAlign = "right"; ctx.fillText("العمر", CH.x1, CH.y1 + 118);
-    ctx.save(); ctx.translate(CH.x0 - 40, CH.y0 + 10); ctx.textAlign = "left"; ctx.fillText("الانتباه", 0, 0); ctx.restore();
+    ctx.fillStyle = ink(.65 * ax); ctx.font = "700 50px 'Baloo Bhaijaan 2'"; ctx.textAlign = "center";
+    for (let a = 20; a <= 70; a += 10) { ctx.fillText(AR(a), ageX(a), CH.y1 + 66); ctx.fillRect(ageX(a) - 1.5, CH.y1, 3, 14); }
+    ctx.font = "800 58px 'Baloo Bhaijaan 2'"; ctx.fillStyle = ink(.85 * ax);
+    ctx.textAlign = "right"; ctx.fillText("العمر", CH.x1, CH.y1 + 136);
+    ctx.save(); ctx.translate(CH.x0 - 40, CH.y0 - 10); ctx.textAlign = "left"; ctx.fillText("الانتباه", 0, 0); ctx.restore();
     // curve draws on
     const dk = io(p(t, C("chart"), C("chart", 1.8))), aEnd = lerp(20, 70, dk);
     ctx.strokeStyle = COL.teal; ctx.lineWidth = 10; ctx.lineCap = "round"; ctx.beginPath();
@@ -476,7 +441,7 @@ function seek(t) {
 
   // ── S2: 10×10 dots, 91 light up on a diagonal wave
   if (scene("S2", t, C("dots"), C("product") - .05)) {
-    field(COL.green); hud(true);
+    field(COL.green);
     const order = [];
     for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) order.push({ r, c, key: (9 - c) + r + hash(r * 10 + c, 3) * .8 });
     order.sort((a, b) => a.key - b.key);
@@ -493,13 +458,13 @@ function seek(t) {
     $("pct").textContent = AR(lit) + "٪";
     css($("pct"), { s: 1 + .08 * decay(t, C("dotsFull"), .2) });
     reveal($("dotsLbl"), t, C("dotsLbl"));
-    [...$("metrics").children].forEach((el, i) => { const k = out(p(t, C("metrics") + i * .1, C("metrics") + i * .1 + .3)); css(el, { y: lerp(50, 0, k), o: k }); });
+    [...$("metrics").children].forEach((el, i) => { const k = out(p(t, C("metrics") + i * .1, C("metrics") + i * .1 + .3)); el.style.clipPath = `inset(0 0 0 ${(1 - k) * 100}% round 999px)`; css(el, { s: 1 + .06 * decay(t, C("metrics") + i * .1 + .3, .1) }); });
   }
 
   // ── PR: teal circle wipe, 14 dots lock into an orbit around the S-mark
   if (scene("PR", t, C("product") - .05, C("phone"))) {
     const wk = io(p(t, C("product") - .05, C("product") + .35));
-    field(COL.green); hud(wk < .5);
+    field(COL.green);
     ctx.fillStyle = COL.teal; ctx.beginPath(); ctx.arc(540, 960, wk * 1150, 0, Math.PI * 2); ctx.fill();
     const lock = io(p(t, C("product"), C("ringLock"))), spin = t * .35;
     RING.forEach((d, i) => {
@@ -518,9 +483,9 @@ function seek(t) {
 
   // ── PH: app tiles; blocked ones flip on the beat, allowed ones light up
   if (scene("PH", t, C("phone"), C("tracker"))) {
-    field(COL.paper); hud(true);
+    field(COL.paper);
     reveal($("phTitle"), t, C("phone") - .06);
-    css($("phLegend"), { o: out(p(t, C("allowed"), C("allowed") + .4)) * .6 });
+    $("phLegend").style.clipPath = `inset(0 0 0 ${(1 - out(p(t, C("allowed"), C("allowed") + .5))) * 100}%)`;
     tileEls.forEach((el, i) => {
       const tin = C("phone") + .25 + i * .05, k = out(p(t, tin, tin + .35));
       if (TILES[i][2] === 0) {
@@ -541,7 +506,7 @@ function seek(t) {
 
   // ── TR: 3D point-grid wave, one column per day
   if (scene("TR", t, C("tracker"), C("bars"))) {
-    field(COL.teal); hud(false);
+    field(COL.teal);
     const wk2 = t >= C("week2") - .06;
     $("trPhase").firstElementChild.textContent = wk2 ? "أسبوع ٢ · البناء" : "أسبوع ١ · القطع";
     reveal($("trPhase"), t, wk2 ? C("week2") - .06 : C("tracker"));
@@ -562,12 +527,12 @@ function seek(t) {
     ctx.font = "800 40px 'Baloo Bhaijaan 2'"; ctx.textAlign = "center";
     for (let i = 0; i < 14; i++) { ctx.fillStyle = t >= dayT(i) ? COL.green : "rgba(255,255,255,.4)"; ctx.fillText(AR(i + 1), 540 + (6.5 - i) * 70, 1540 + (1 - gin) * 200); }
     $("trNum").innerHTML = `<span class="u">اليوم</span> ${AR(Math.max(1, filled))}`;
-    css($("trNum"), { s: 1 + .06 * decay(t, filled ? dayT(filled - 1) : 0, .08), o: gin });
+    css($("trNum"), { s: 1 + .06 * decay(t, filled ? dayT(filled - 1) : 0, .08), y: (1 - gin) * 300 });
   }
 
   // ── FO: focus-session bars 30 → 90 with rolling numbers
   if (scene("FO", t, C("bars"), C("results"))) {
-    field(COL.green); hud(true);
+    field(COL.green);
     reveal($("foTitle"), t, C("bars") - .06);
     barEls.forEach((el, i) => {
       const tb = C("bar", i), k = out(p(t, tb - .18, tb + .25));
@@ -581,7 +546,7 @@ function seek(t) {
 
   // ── RE: day 14 before/after rows
   if (scene("RE", t, C("results"), C("message"))) {
-    field(COL.deep); hud(false);
+    field(COL.deep);
     reveal($("reEye"), t, C("results") - .06);
     reveal($("reTitle"), t, C("results") + .06);
     resEls.forEach((el, i) => {
@@ -597,25 +562,26 @@ function seek(t) {
     const cards = [["me1", "message", "m2", COL.teal, 0], ["me2", "m2", "m3", COL.white, 1], ["me3", "m3", "end", COL.green, 1]];
     cards.forEach(([id, a, b]) => cardIn($(id), t, C(a), C(b)));
     const cur = t >= C("m3") ? 2 : t >= C("m2") ? 1 : 0;
-    field(cur === 0 ? COL.deep : cards[cur - 1][3]); hud(cards[cur][4]);
+    field(cur === 0 ? COL.deep : cards[cur - 1][3]);
   }
 
   // ── EN: logo with particle burst, CTA
   if (scene("EN", t, C("end"), 1e9)) {
-    field(COL.teal); hud(false);
-    bctx.setTransform(DPR, 0, 0, DPR, 0, 0); bctx.clearRect(0, 0, 1080, 1920);
-    const ox = 90 + 165 * 900 / 1057, oy = 440 + 150 * 254 / 299, age = t - C("flick");
-    if (age > 0) PARTS.forEach(q => {
-      if (age > q.life) return;
-      const k = 3.2, d = q.v * (1 - Math.exp(-k * age)) / k, fade = 1 - age / q.life;
-      const x = ox + Math.cos(q.a) * d, y = oy + Math.sin(q.a) * d + 60 * age * age;
-      bctx.globalAlpha = fade; bctx.fillStyle = bctx.strokeStyle = q.col; bctx.lineWidth = 3;
-      bctx.beginPath();
-      if (q.kind < .5) { bctx.arc(x, y, q.s * .5, 0, Math.PI * 2); bctx.fill(); }
-      else if (q.kind < .75) { bctx.arc(x, y, q.s * .6, 0, Math.PI * 2); bctx.stroke(); }
-      else { bctx.moveTo(x, y - q.s * .6); bctx.lineTo(x + q.s * .55, y + q.s * .4); bctx.lineTo(x - q.s * .55, y + q.s * .4); bctx.closePath(); bctx.fill(); }
-    });
-    bctx.globalAlpha = 1;
+    field(COL.teal);
+    // the arrow in the S launches the 14 days: one dot per 16th, each lands in a row under the logo
+    dctx.setTransform(DPR, 0, 0, DPR, 0, 0); dctx.clearRect(0, 0, 1080, 1920);
+    const tipX = 90 + 455 * 900 / 1057, tipY = 440 + 60 * 254 / 299;
+    for (let i = 0; i < 14; i++) {
+      const tl = C("flick") + i * BEAT() / 4, k = io(p(t, tl, tl + .38));
+      if (t < tl) continue;
+      const ex = 900 - i * 55, ey = 770;
+      const cx = lerp(tipX, ex, .5) + 40, cy = Math.min(tipY, ey) - 220;             // arc up, then down into the slot
+      const x = (1 - k) ** 2 * tipX + 2 * (1 - k) * k * cx + k * k * ex;
+      const y = (1 - k) ** 2 * tipY + 2 * (1 - k) * k * cy + k * k * ey;
+      const landed = k >= 1, pop = landed ? 1 + .6 * decay(t, tl + .38, .1) : 1;
+      dctx.beginPath(); dctx.arc(x, y, (landed ? 17 : 11) * pop, 0, Math.PI * 2);
+      dctx.fillStyle = landed ? COL.green : "#fff"; dctx.fill();
+    }
     css($("grad"), { o: .5 + .5 * out(p(t, C("end"), C("k1"))) });
     const wk = out(p(t, C("end"), C("end") + .4));
     $("logoW").style.clipPath = `inset(0 ${(1 - wk) * 100}% 0 0)`;
@@ -629,7 +595,7 @@ function seek(t) {
     css($("btn"), { s: 1 + .04 * decay(t, C("btn"), .12) + .05 * decay(t, lastBar, .15) });
     reveal($("bio"), t, C("btn") + .3);
     const sk = out(p(t, C("social"), C("social") + .35));
-    css($("social"), { x: lerp(-60, 0, sk), o: sk });
+    $("social").style.clipPath = `inset(0 ${(1 - sk) * 100}% 0 0)`;
   }
 }
 
