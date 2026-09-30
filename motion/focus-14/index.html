@@ -58,7 +58,6 @@
   #metrics { position: absolute; top: 1330px; left: 80px; right: 80px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
   #metrics .chip { height: 110px; font-size: 62px; background: var(--elev); border: 1px solid var(--border); color: var(--fg); }
 
-  #cite { top: 1700px; font-size: 44px; color: var(--subtle); display: none; }
   /* E — product */
   #prod1 { top: 560px; font-size: 200px; }
   #prod2 { top: 850px; font-size: 130px; }
@@ -158,8 +157,6 @@
     <div class="r mask" id="pctSub"><span>من المشاركين تحسّنوا</span></div>
     <div id="metrics"><div class="chip">الانتباه</div><div class="chip">الصحة النفسية</div><div class="chip">الرضا عن الحياة</div></div>
   </section>
-
-  <div class="r u" id="cite"><span dir="ltr">Castelo, Kushlev &amp; Ward · PNAS Nexus · 2025</span></div>
 
   <section class="scene" id="E">
     <div class="r d" id="prod1">تحدي <span class="g">١٤</span> يوم</div>
@@ -353,13 +350,6 @@ function seek(t) {
       const k = out(p(t, B(19) + i * .08, B(19) + i * .08 + .3));
       css(el, { y: lerp(40, 0, k), o: k });
     });
-  }
-
-  // study citation, shown under both study scenes   [B10, B20)
-  {
-    const on = t >= B(10) + .3 && t < B(20);
-    $("cite").style.display = on ? "block" : "none";
-    if (on) css($("cite"), { o: out(p(t, B(10) + .3, B(10) + .8)) });
   }
 
   // E — product name, rack focus   [B20, B26)
